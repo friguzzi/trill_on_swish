@@ -51,6 +51,7 @@ the server will challenge the user.  The   logged  in  user is available
 through pengine_user/1.
 */
 
-pengines:authentication_hook(_Request, _Application, anonymous).
+pengines:authentication_hook(_Request, _Application, any).
+
 
 pengines:not_sandboxed(_User, _Application).

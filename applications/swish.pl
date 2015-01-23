@@ -82,5 +82,5 @@ pengines:prepare_module(Module, swish, _Options) :-
 
 % rendering libraries
 
-:- use_module(library(swish/render/table), []).
+%:- use_module(library(swish/render/table), []).
 :- use_module(library(swish/render/rdf), []).

@@ -2,4 +2,9 @@
 
 [
 { "file":"rdf_queries.pl",		  "title":"General queries" },
+{ "file":"biopax-level3.owl",             "title":"Biopax KB" },
+{ "file":"BRCA.owl",                      "title":"BRCA KB" },
+{ "file":"DBPedia.owl",                   "title":"DBPedia KB" },
+{ "file":"people+pets.owl",               "title":"people+pets KB" },
+{ "file":"vicodi-ontology.owl",           "title":"Vicodi KB" },
 ]

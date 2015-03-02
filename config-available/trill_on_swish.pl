@@ -1,4 +1,4 @@
-:- module(conf_swish, []).
+:- module(conf_trill_on_swish, []).
 :- use_module(cliopatria(hooks)).
 
 /** <module> Add Prolog interaction to ClioPatria
@@ -10,18 +10,18 @@
 % =examples=  directory  in  the  main   directory  holding  application
 % specific examples.
 
-user:file_search_path(swish_web, web(.)).
-user:file_search_path(example,   cpacks(swish/examples)).
-user:file_search_path(example,	 examples).
+user:file_search_path(trill_on_swish_web, web(.)).
+user:file_search_path(tos_example,   cpacks(trill_on_swish/examples)).
+user:file_search_path(tos_example,	 examples).
 
 % Load swish.  You need this.
-:- use_module(applications(swish)).
+:- use_module(applications(trill_on_swish)).
 % Load the authentication hook. When loaded, ClioPatria users with admin
 % rights can use SWISH without sandboxing security
-:- use_module(library(swish/cp_authenticate)).
+:- use_module(library(trill_on_swish/trill_on_swish_cp_authenticate)).
 
 %%      cliopatria:menu_item(-Item, -Label) is nondet.
 %
 %       Add SWISH to the Query menu.
 
-cliopatria:menu_item(300=query/swish, 'SWISH Prolog shell').
+cliopatria:menu_item(400=query/trill_on_swish, 'TRILL on SWISH shell').

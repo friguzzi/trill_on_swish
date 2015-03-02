@@ -27,46 +27,19 @@
     the GNU General Public License.
 */
 
-:- module(cliopatria_render_rdf,
-	  [ term_rendering//3			% +Term, +Vars, +Options
-	  ]).
-:- use_module(library(semweb/rdf_db)).
-:- use_module(components(label)).
-:- use_module(library(uri)).
-:- use_module(library(swish/render)).
+:- module(trill_on_swish_help, []).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_server_files)).
 
-:- register_renderer(rdf, "Render RDF terms").
+/** <module> SWISH help system
 
-/** <module> SWISH RDF renderer
+This module serves help information for SWISH.
 
-Render RDF data.
+@tbd	Server SWI-Prolog Markdown files.
 */
 
-%%	term_rendering(+Term, +Vars, +Options)//
-%
-%	Renders Term as a uri.  Furt
+:- http_handler(trill_on_swish(help), serve_files_in_directory(tos_help),
+		[id(trill_on_swish_help),prefix]).
 
-term_rendering(Term, _Vars, Options) -->
-	{ is_rdf(Term)
-	}, !,
-	rdf_link(Term, Options).
+user:file_search_path(tos_help, trill_on_swish(web/help)).
 
-is_rdf(Term) :-
-	is_uri(Term), !.
-is_rdf(literal(Value)) :-
-	ground(Value),
-	is_literal(Value).
-
-is_uri(Term) :-
-	atom(Term),
-	(   uri_is_global(Term)
-	->  true
-	;   rdf_is_bnode(Term)
-	).
-
-is_literal(Atomic) :- is_plain_literal(Atomic).
-is_literal(type(Type, Literal)) :- is_uri(Type), is_plain_literal(Literal).
-is_literal(lang(Lang, Literal)) :- atom(Lang),   is_plain_literal(Literal).
-
-is_plain_literal(Value) :-
-	atomic(Value).

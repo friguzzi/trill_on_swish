@@ -27,7 +27,7 @@
     the GNU General Public License.
 */
 
-:- module(swish_authenticate,
+:- module(trill_on_swish_authenticate,
 	  [
 	  ]).
 :- use_module(library(pengines), []).

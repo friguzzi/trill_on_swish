@@ -27,7 +27,7 @@
     the GNU General Public License.
 */
 
-:- module(swish_app,
+:- module(trill_on_swish_app,
 	  [
 	  ]).
 :- use_module(library(pengines)).
@@ -35,23 +35,23 @@
 :- use_module(library(http/http_server_files)).
 :- use_module(library(http/http_json)).
 
-:- use_module(library(swish/config)).
-:- use_module(library(swish/page), []).
-:- use_module(library(swish/storage)).
-:- use_module(library(swish/examples)).
-:- use_module(library(swish/help)).
-:- use_module(library(swish/highlight)).
-:- use_module(library(swish/render)).
-:- use_module(library(swish/template_hint)).
+:- use_module(library(trill_on_swish/trill_on_swish_config)).
+:- use_module(library(trill_on_swish/trill_on_swish_page), []).
+:- use_module(library(trill_on_swish/trill_on_swish_storage)).
+:- use_module(library(trill_on_swish/trill_on_swish_examples)).
+:- use_module(library(trill_on_swish/trill_on_swish_help)).
+:- use_module(library(trill_on_swish/trill_on_swish_highlight)).
+:- use_module(library(trill_on_swish/trill_on_swish_render)).
+:- use_module(library(trill_on_swish/trill_on_swish_template_hint)).
 
 
 		 /*******************************
 		 *	       PATHS		*
 		 *******************************/
 
-http:location(swish, root(swish), []).
+http:location(trill_on_swish, root(trill_on_swish), []).
 
-user:file_search_path(render, library(swish/render)).
+user:file_search_path(tos_render, library(trill_on_swish/trill_on_swish_render)).
 
 
                  /*******************************
@@ -61,16 +61,16 @@ user:file_search_path(render, library(swish/render)).
 :- multifile
 	pengines:prepare_module/3.
 
-:- pengine_application(swish).
-:- use_rendering(swish:rdf).
-:- use_module(swish:library(swish/render)).
-:- use_module(swish:library(pengines_io)).
-:- use_module(swish:library(semweb/rdf_db)).
-:- use_module(swish:library(semweb/rdfs)).
-:- use_module(swish:library(semweb/rdf_optimise)).
-:- use_module(swish:library(semweb/rdf_litindex)).
-:- use_module(swish:library(aggregate)).
-pengines:prepare_module(Module, swish, _Options) :-
+:- pengine_application(trill_on_swish).
+:- trill_on_swish_use_rendering(trill_on_swish:trill_on_swish_rdf).
+:- use_module(trill_on_swish:library(trill_on_swish/trill_on_swish_render)).
+:- use_module(trill_on_swish:library(pengines_io)).
+:- use_module(trill_on_swish:library(semweb/rdf_db)).
+:- use_module(trill_on_swish:library(semweb/rdfs)).
+:- use_module(trill_on_swish:library(semweb/rdf_optimise)).
+:- use_module(trill_on_swish:library(semweb/rdf_litindex)).
+:- use_module(trill_on_swish:library(aggregate)).
+pengines:prepare_module(Module, trill_on_swish, _Options) :-
 	pengines_io:pengine_bind_io_to_html(Module).
 
 % Libraries that are nice to have in SWISH, but cannot be loaded
@@ -82,5 +82,5 @@ pengines:prepare_module(Module, swish, _Options) :-
 
 % rendering libraries
 
-%:- use_module(library(swish/render/table), []).
-:- use_module(library(swish/render/rdf), []).
+%:- use_module(library(trill_on_swish/render/table), []).
+:- use_module(library(trill_on_swish/render/rdf), []).

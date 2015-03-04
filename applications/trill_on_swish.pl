@@ -51,7 +51,7 @@
 
 http:location(trill_on_swish, root(trill_on_swish), []).
 
-user:file_search_path(tos_render, library(trill_on_swish/trill_on_swish_render)).
+user:file_search_path(tos_render, library(trill_on_swish/render)).
 
 
                  /*******************************

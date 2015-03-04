@@ -18,6 +18,6 @@
 	    ] ;
 	cpack:description
 
-"""Package description goes here.  You can use markdown.
+"""
 A Prolog tableau reasoner for OWL DL. Allows users to ask queries to OWL knowledge bases. Require cplint and trill packs installed.
 """ .

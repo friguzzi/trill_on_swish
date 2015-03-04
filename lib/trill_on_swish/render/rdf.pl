@@ -33,7 +33,7 @@
 :- use_module(library(semweb/rdf_db)).
 :- use_module(components(label)).
 :- use_module(library(uri)).
-:- use_module(library(trill_on_swish/trill_on_swish_render)).
+:- use_module('../trill_on_swish_render').
 
 :- trill_on_swish_register_renderer(trill_on_swish_rdf, "Render RDF terms").
 

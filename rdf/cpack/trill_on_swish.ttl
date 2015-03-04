@@ -1,17 +1,29 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf:    <http://xmlns.com/foaf/0.1/> .
 @prefix cpack:   <http://cliopatria.swi-prolog.org/schema/cpack#> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
 
-<> a cpack:Application ;
-        cpack:packageName "trill_on_swish" ;
-        dcterms:title "TRILL on SWISH" ;
-        cpack:author [ foaf:name "Riccardo Zese" ;
-                       foaf:mbox <mailto:riccardo.zese@unife.it> ;
-                     ] ;
-        cpack:primaryRepository
-            [ a cpack:GitRepository ;
-              cpack:gitURL <https://github.com/friguzzi/trill-cpack.git>
-            ] ;
-        cpack:description "A Prolog reasoner for OWL DL" .
+# This file is a Turtle-format RDF file that describes the package.  It
+# *must* be located in rdf/cpack/swish.ttl
+#
+# Author is a FOAF Person. If you have a FOAF profile, you can link to
+# this.  Otherwise you can specify the information inline as done below.
+# See http://xmlns.com/foaf/spec/ for defines fields.
+
+<> a cpack:Package ;
+	cpack:packageName "trill_on_swish" ;
+	dcterms:title "TRILL on SWISH: a Tableau Reasoner in Prolog" ;
+	cpack:author [ a foaf:Person ;
+		       foaf:name "Riccardo Zese" ;
+		       foaf:mbox <mailto:riccardo.zese@unife.it> ;
+		     ] ;
+	cpack:primaryRepository
+	    [ a cpack:GitRepository ;
+	      cpack:gitURL <https://github.com/friguzzi/trill-cpack.git>
+	    ] ;
+	cpack:description
+
+"""Package description goes here.  You can use markdown.
+A Prolog tableau reasoner for OWL DL. Allows users to ask queries to OWL knowledge bases
+""" .

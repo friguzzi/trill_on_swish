@@ -20,7 +20,7 @@
 		     ] ;
 	cpack:primaryRepository
 	    [ a cpack:GitRepository ;
-	      cpack:gitURL <https://github.com/friguzzi/trill-cpack.git>
+	      cpack:gitURL <https://github.com/friguzzi/trill_on_swish.git>
 	    ] ;
 	cpack:description
 

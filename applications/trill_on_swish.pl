@@ -62,14 +62,15 @@ user:file_search_path(tos_render, library(trill_on_swish/render)).
 	pengines:prepare_module/3.
 
 :- pengine_application(trill_on_swish).
-:- trill_on_swish_use_rendering(trill_on_swish:trill_on_swish_rdf).
-:- use_module(library(trill_on_swish/trill_on_swish_render)).
+:- use_module(trill_on_swish:library(trill_on_swish/trill_on_swish_render)).
 :- use_module(trill_on_swish:library(pengines_io)).
 :- use_module(trill_on_swish:library(semweb/rdf_db)).
 :- use_module(trill_on_swish:library(semweb/rdfs)).
 :- use_module(trill_on_swish:library(semweb/rdf_optimise)).
 :- use_module(trill_on_swish:library(semweb/rdf_litindex)).
 :- use_module(trill_on_swish:library(aggregate)).
+:- trill_on_swish_use_rendering(trill_on_swish:trill_on_swish_rdf).
+
 pengines:prepare_module(Module, trill_on_swish, _Options) :-
 	pengines_io:pengine_bind_io_to_html(Module).
 

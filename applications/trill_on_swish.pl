@@ -63,7 +63,7 @@ user:file_search_path(tos_render, library(trill_on_swish/render)).
 
 :- pengine_application(trill_on_swish).
 :- trill_on_swish_use_rendering(trill_on_swish:trill_on_swish_rdf).
-:- use_module(trill_on_swish:library(trill_on_swish/trill_on_swish_render)).
+:- use_module(library(trill_on_swish/trill_on_swish_render)).
 :- use_module(trill_on_swish:library(pengines_io)).
 :- use_module(trill_on_swish:library(semweb/rdf_db)).
 :- use_module(trill_on_swish:library(semweb/rdfs)).

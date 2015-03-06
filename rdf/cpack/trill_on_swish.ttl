@@ -19,5 +19,6 @@
 	cpack:description
 
 """
-A Prolog tableau reasoner for OWL DL. Allows users to ask queries to OWL knowledge bases. Require cplint and trill packs installed.
+A Prolog tableau reasoner for OWL DL. Allows users to ask queries to OWL knowledge bases. Require 'cplint' and 'trill' packs installed, 
+see [SWI Prolog Packages List](http://www.swi-prolog.org/pack/list) page for the installation. 
 """ .

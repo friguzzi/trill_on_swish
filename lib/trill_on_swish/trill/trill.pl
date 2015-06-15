@@ -2105,6 +2105,7 @@ compute_prob_ax1([Prob1 | T],Prob):-
 /************************/
 
 
+/*
 :- multifile sandbox:safe_primitive/1.
 
 sandbox:safe_primitive(trill:init_test(_,_)).
@@ -2134,4 +2135,4 @@ sandbox:safe_primitive(trill:inconsistent_theory(_)).
 sandbox:safe_primitive(trill:prob_inconsistent_theory(_)).
 sandbox:safe_primitive(trill:load_theory(_)).
 sandbox:safe_primitive(trill:check_query_args(_)).
-
+*/

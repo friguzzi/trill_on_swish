@@ -1787,10 +1787,12 @@ add_all_n([H|T],A,AN):-
  ==========
 */
 retract_sameIndividual(L):-
-  retract(sameIndividual(L)).
+  get_trill_current_module(N),
+  retract(N:sameIndividual(L)).
 
 retract_sameIndividual(L):-
-  \+ retract(sameIndividual(L)).
+  get_trill_current_module(N),
+  \+ retract(N:sameIndividual(L)).
 /* ****** */
 
 /*

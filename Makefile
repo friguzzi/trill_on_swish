@@ -3,7 +3,8 @@
 FONTDIR=web/bower_components/bootstrap/dist/fonts
 DIRS=lib/trill_on_swish lib/trill_on_swish/render web/icons web/help $(FONTDIR)
 SWISHLIB=trill_on_swish_storage.pl trill_on_swish_page.pl trill_on_swish_help.pl trill_on_swish_examples.pl trill_on_swish_config.pl trill_on_swish_gitty.pl \
-	 trill_on_swish_highlight.pl trill_on_swish_render.pl trill_on_swish_template_hint.pl trill_on_swish_search.pl trill_on_swish_form.pl
+	 trill_on_swish_highlight.pl trill_on_swish_render.pl trill_on_swish_template_hint.pl trill_on_swish_search.pl trill_on_swish_form.pl translate_rdf.pl \
+	 trill/trill.pl trill/trillProbComputation.pl
 RENDER=table.pl
 LIBS=	$(addprefix lib/trill_on_swish/, $(SWISHLIB)) \
 	$(addprefix lib/trill_on_swish/render/, $(RENDER))

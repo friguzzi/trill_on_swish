@@ -47,6 +47,7 @@
         owl2_model:minCardinality/2,
         owl2_model:minCardinality/3.
 
+:- multifile init_test/2,ret_prob/2,end_test/1,one/2,zero/2,and/4,or/4,get_var_n/5,add_var/5,equality/4.
 
 load_theory(Name):-
   [Name].
@@ -2107,6 +2108,7 @@ compute_prob_ax1([Prob1 | T],Prob):-
 
 /*
 :- multifile sandbox:safe_primitive/1.
+		
 
 sandbox:safe_primitive(trill:init_test(_,_)).
 sandbox:safe_primitive(trill:ret_prob(_,_,_)).

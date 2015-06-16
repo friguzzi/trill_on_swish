@@ -1981,7 +1981,7 @@ compute_prob_ax1([Prob1 | T],Prob):-
 
 :- multifile sandbox:safe_primitive/1.
 		
-/*
+
 sandbox:safe_primitive(trill:init_test(_,_)).
 sandbox:safe_primitive(trill:ret_prob(_,_,_)).
 sandbox:safe_primitive(trill:end_test(_)).
@@ -1994,7 +1994,7 @@ sandbox:safe_primitive(trill:get_var_n(_,_,_,_,_)).
 sandbox:safe_primitive(trill:add_var(_,_,_,_,_)).
 sandbox:safe_primitive(trill:equality(_,_,_,_)).
 
-*/
+
 sandbox:safe_primitive(trill:sub_class(_,_)).
 sandbox:safe_primitive(trill:sub_class(_,_,_)).
 sandbox:safe_primitive(trill:prob_sub_class(_,_,_)).

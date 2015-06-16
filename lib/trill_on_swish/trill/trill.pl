@@ -19,7 +19,11 @@
 
 :- use_foreign_library(foreign(bddem),install).
 
-:- thread_local rule_n/1.
+:- thread_local %get_var_n/5
+        rule_n/1,
+        na/2,
+        v/3.
+        
 %:-['trillProbComputation'].
 
 :- thread_local
@@ -47,7 +51,7 @@
         owl2_model:minCardinality/2,
         owl2_model:minCardinality/3.
 
-:- multifile init_test/2,ret_prob/3,end_test/1,one/2,zero/2,and/4,or/4,get_var_n/5,add_var/5,equality/4,na/2,remove/3,v/3.
+:- multifile init_test/2,ret_prob/3,end_test/1,one/2,zero/2,and/4,or/4,add_var/5,equality/4,remove/3.
 
 load_theory(Name):-
   [Name].

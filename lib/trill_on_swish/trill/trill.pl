@@ -347,118 +347,6 @@ apply_nondet_rules([_|T],ABox,ABox1):-
   apply_nondet_rules(T,ABox,ABox1).
   
 
-/**********************
-   old version for the rules application
-
-apply_rules_0((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules((ABox0,Tabs0),(ABox,Tabs)):-
-  %writel(ABox0),nl,
-  %apply_rules1((ABox0,Tabs0),(ABox,Tabs)).
-  apply_rules1_1((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules1_1((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('o_rule: '),nl,
-  o_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules1_1((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules1((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules1((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('and_rule: '),nl,
-  and_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules1((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules2((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules2((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('exists_rule: '),nl,
-  exists_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules2((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules3((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules3((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('forall_rule: '), nl,
-  forall_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules3((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules3_1((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules3_1((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('forall_plus_rule: '),nl,
-  forall_plus_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules3_1((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules4((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules4((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('min_rule: '),nl,
-  min_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules4((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules5((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules5((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('unfold_rule: '),nl,
-  unfold_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules5((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules6((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules6((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('add_exists_rule: '),nl,
-  add_exists_rule((ABox0,Tabs0),(ABox1,Tabs1)),!,
-  %writel(ABox1),nl,
-  %write('apllyied'),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules6((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules7((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules7((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('or_rule: '),nl,
-  or_rule((ABox0,Tabs0),L),!,
-  member((ABox1,Tabs1),L),
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules7((ABox0,Tabs0),(ABox,Tabs)):-
-  apply_rules8((ABox0,Tabs0),(ABox,Tabs)).
-
-apply_rules8((ABox0,Tabs0),(ABox,Tabs)):-
-  %write('max_rule: '),nl,
-  max_rule((ABox0,Tabs0),L),!,
-  member((ABox1,Tabs1),L),
-  %write('apllyied'),nl,
-  %writel(ABox1),nl,
-  apply_rules((ABox1,Tabs1),(ABox,Tabs)).
-
-apply_rules8((ABox,Tabs),(ABox,Tabs)).
-
-*/
 
 /*
   add_exists_rule
@@ -759,7 +647,7 @@ find_sub_sup_class(C,D,equivalentClasses(L)):-
 /*******************
  managing the concept (C subclassOf Thing)
  this implementation doesn't work well in a little set of cases
- TO IMPROVE!
+ TO FIX!
  *******************
 
 find_sub_sup_class(C,'Thing',subClassOf(C,'Thing')):-
@@ -1992,67 +1880,47 @@ get_trill_current_module('owl2_model'):- !.
 ****************/
 
 compute_prob(Expl,Prob):-
-  %writeln('retract'),
   retractall(v(_,_,_)),
   retractall(na(_,_)),
   retractall(rule_n(_)),
-  %writeln('assert'),
   assert(rule_n(0)),
-  %writeln('test'),
   init_test(_,Env),
-  %writeln('build_bdd'),
   build_bdd(Env,Expl,BDD),
-  %writeln('ret_prob'),
   ret_prob(Env,BDD,Prob),
-  %writeln('end'),
   end_test(Env), !.
   
   
 
 
 build_bdd(Env,[X],BDD):- !,
-  %write('1'),nl,
-  %writel(X),nl,
   bdd_and(Env,X,BDD).
   
 build_bdd(Env, [H|T],BDD):-
-  %write('2'),nl,
   build_bdd(Env,T,BDDT),
   bdd_and(Env,H,BDDH),
   or(Env,BDDH,BDDT,BDD).
   
 build_bdd(Env,[],BDD):- !,
-  %write('3'),nl,
   zero(Env,BDD).
   
   
 bdd_and(Env,[X],BDDX):-
-  %write('bdd_and-1: '),write(X),nl,
   get_prob_ax(X,AxN,Prob),!,
-  %write('   '),write(Prob),nl,
   ProbN is 1-Prob,
   get_var_n(Env,AxN,[],[Prob,ProbN],VX),
   equality(Env,VX,0,BDDX),!.
 bdd_and(Env,[_X],BDDX):- !,
-  %write('bdd_and-1: '),write(X),nl,write('   1'),nl,
   one(Env,BDDX).
   
 bdd_and(Env,[H|T],BDDAnd):-
-  %write('bdd_and-2: '),write(H),nl, 
   get_prob_ax(H,AxN,Prob),!,
-  %write('   '),write(Prob),nl,
   ProbN is 1-Prob,
-  %write('bdd_and-2: ProbN'),nl,
   get_var_n(Env,AxN,[],[Prob,ProbN],VH),
-  %write('bdd_and-2: get_var_n'),nl, 
   equality(Env,VH,0,BDDH),
-  %write('bdd_and-2: equality'),nl,
   bdd_and(Env,T,BDDT),
-  %write('bdd_and-2: bdd_and'),nl,
   and(Env,BDDH,BDDT,BDDAnd).
   
 bdd_and(Env,[_H|T],BDDAnd):- !,
-  %write('bdd_and-2: '),write(H),nl,write('   1'),nl,
   one(Env,BDDH),
   bdd_and(Env,T,BDDT),
   and(Env,BDDH,BDDT,BDDAnd).
@@ -2066,9 +1934,7 @@ get_var_n(Env,R,S,Probs,V):-
       true
     ; 
       length(Probs,L),
-      %trace,
       add_var(Env,L,Probs,R,V),
-      %notrace,
       assert(v(R,S,V))
   ).
 
@@ -2112,7 +1978,7 @@ compute_prob_ax1([Prob1 | T],Prob):-
 /************************/
 
 
-/*
+
 :- multifile sandbox:safe_primitive/1.
 		
 
@@ -2128,7 +1994,7 @@ sandbox:safe_primitive(trill:get_var_n(_,_,_,_,_)).
 sandbox:safe_primitive(trill:add_var(_,_,_,_,_)).
 sandbox:safe_primitive(trill:equality(_,_,_,_)).
 
-
+/*
 sandbox:safe_primitive(trill:sub_class(_,_)).
 sandbox:safe_primitive(trill:sub_class(_,_,_)).
 sandbox:safe_primitive(trill:prob_sub_class(_,_,_)).

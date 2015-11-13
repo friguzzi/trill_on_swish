@@ -4,13 +4,19 @@
 @prefix foaf:    <http://xmlns.com/foaf/0.1/> .
 @prefix cpack:   <http://cliopatria.swi-prolog.org/schema/cpack#> .
 
+# This file is a Turtle-format RDF file that describes the package.  It
+# *must* be located in rdf/cpack/swish.ttl
+#
+# Author is a FOAF Person. If you have a FOAF profile, you can link to
+# this.  Otherwise you can specify the information inline as done below.
+# See http://xmlns.com/foaf/spec/ for defines fields.
 
 <> a cpack:Package ;
 	cpack:packageName "trill_on_swish" ;
-	dcterms:title "TRILL on SWISH: a Tableau Reasoner in Prolog" ;
+	dcterms:title "TRILL on SWISH on Cliopatria" ;
 	cpack:author [ a foaf:Person ;
 		       foaf:name "Riccardo Zese" ;
-		       foaf:mbox <mailto:riccardo.zese@unife.it> ;
+                       foaf:mbox <mailto:riccardo.zese@unife.it> ;
 		     ] ;
 	cpack:primaryRepository
 	    [ a cpack:GitRepository ;
@@ -18,7 +24,9 @@
 	    ] ;
 	cpack:description
 
-"""
-A Prolog tableau reasoner for OWL DL. Allows users to ask queries to OWL knowledge bases. Require 'cplint' and 'trill' packs installed, 
-see [SWI Prolog Packages List](http://www.swi-prolog.org/pack/list) page for the installation. 
+"""Package description goes here.  You can use markdown.
+Make the [TRILL on SWISH](https://github.com/SWI-Prolog/trill_on_swish.git)
+package available as a ClioPatria _cpack_.
 """ .
+
+

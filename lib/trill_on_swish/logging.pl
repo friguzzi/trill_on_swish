@@ -3,7 +3,7 @@
     Author:        Jan Wielemaker
     E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 2014, VU University Amsterdam
+    Copyright (C): 2015, VU University Amsterdam
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -27,46 +27,45 @@
     the GNU General Public License.
 */
 
-:- module(cliopatria_render_rdf,
-	  [ term_rendering//3			% +Term, +Vars, +Options
+:- module(trill_on_swish_logging,
+	  [
 	  ]).
-:- use_module(library(semweb/rdf_db)).
-:- use_module(components(label)).
-:- use_module(library(uri)).
-:- use_module(library(trill_on_swish/render)).
+:- use_module(library(http/http_log)).
+:- use_module(library(broadcast)).
+:- use_module(library(settings)).
+:- use_module(library(apply)).
 
-:- register_renderer(rdf, "Render RDF terms").
+/** <module> Add SWISH query execution to the HTTP log file
 
-/** <module> SWISH RDF renderer
+Add a line of the format below to  the HTTP log file. The src_text(Text)
+option of Options is replaced by   `Hash-Text`  for the first occurrence
+and just `Hash` for subsequent occurrences.
 
-Render RDF data.
+  ==
+  pengine(Time, create(Pengine, Application, Options))
+  ==
 */
 
-%%	term_rendering(+Term, +Vars, +Options)//
-%
-%	Renders Term as a uri.  Furt
+:- setting(trill_on_swish:logging, boolean, true,
+	   "Enable/disable logging of SWISH query execution").
 
-term_rendering(Term, _Vars, Options) -->
-	{ is_rdf(Term)
-	}, !,
-	rdf_link(Term, [target('cliopatria-localview')|Options]).
+:- listen(pengine(Action), trill_on_swish_log(Action)).
 
-is_rdf(Term) :-
-	is_uri(Term), !.
-is_rdf(literal(Value)) :-
-	ground(Value),
-	is_literal(Value).
+trill_on_swish_log(create(Pengine, Application, Options0)) :-
+	maplist(hash_option, Options0, Options),
+	get_time(Now),
+	format_time(string(HDate), '%+', Now),
+	http_log('/*~s*/ pengine(~3f, ~q).~n',
+		 [HDate, Now, create(Pengine, Application, Options)]).
 
-is_uri(Term) :-
-	atom(Term),
-	(   uri_is_global(Term)
-	->  true
-	;   rdf_is_bnode(Term)
+:- dynamic
+	text_hash/2.
+
+hash_option(src_text(Text), src_text(Result)) :- !,
+	(   text_hash(Text, Hash)
+	->  Result = Hash
+	;   variant_sha1(Text, Hash),
+	    assert(text_hash(Text, Hash)),
+	    Result = Hash-Text
 	).
-
-is_literal(Atomic) :- is_plain_literal(Atomic).
-is_literal(type(Type, Literal)) :- is_uri(Type), is_plain_literal(Literal).
-is_literal(lang(Lang, Literal)) :- atom(Lang),   is_plain_literal(Literal).
-
-is_plain_literal(Value) :-
-	atomic(Value).
+hash_option(Option, Option).

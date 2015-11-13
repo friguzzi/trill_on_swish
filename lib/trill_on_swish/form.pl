@@ -27,46 +27,17 @@
     the GNU General Public License.
 */
 
-:- module(cliopatria_render_rdf,
-	  [ term_rendering//3			% +Term, +Vars, +Options
-	  ]).
-:- use_module(library(semweb/rdf_db)).
-:- use_module(components(label)).
-:- use_module(library(uri)).
-:- use_module(library(trill_on_swish/render)).
+:- module(trill_on_swish_form, []).
+:- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_server_files)).
 
-:- register_renderer(rdf, "Render RDF terms").
+/** <module> Show forms in SWISH
 
-/** <module> SWISH RDF renderer
-
-Render RDF data.
+This module serves forms for SWISH.
 */
 
-%%	term_rendering(+Term, +Vars, +Options)//
-%
-%	Renders Term as a uri.  Furt
+:- http_handler(trill_on_swish(form), serve_files_in_directory(swish_form),
+		[id(form),prefix]).
 
-term_rendering(Term, _Vars, Options) -->
-	{ is_rdf(Term)
-	}, !,
-	rdf_link(Term, [target('cliopatria-localview')|Options]).
+user:file_search_path(swish_form, trill_on_swish(web/form)).
 
-is_rdf(Term) :-
-	is_uri(Term), !.
-is_rdf(literal(Value)) :-
-	ground(Value),
-	is_literal(Value).
-
-is_uri(Term) :-
-	atom(Term),
-	(   uri_is_global(Term)
-	->  true
-	;   rdf_is_bnode(Term)
-	).
-
-is_literal(Atomic) :- is_plain_literal(Atomic).
-is_literal(type(Type, Literal)) :- is_uri(Type), is_plain_literal(Literal).
-is_literal(lang(Lang, Literal)) :- atom(Lang),   is_plain_literal(Literal).
-
-is_plain_literal(Value) :-
-	atomic(Value).

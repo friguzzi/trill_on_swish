@@ -27,46 +27,30 @@
     the GNU General Public License.
 */
 
-:- module(cliopatria_render_rdf,
-	  [ term_rendering//3			% +Term, +Vars, +Options
+:- module(swish_authenticate,
+	  [
 	  ]).
-:- use_module(library(semweb/rdf_db)).
-:- use_module(components(label)).
-:- use_module(library(uri)).
-:- use_module(library(trill_on_swish/render)).
+:- use_module(library(pengines), []).
+:- use_module(library(lists)).
+:- use_module(user(user_db)).
 
-:- register_renderer(rdf, "Render RDF terms").
+/** <module> SWISH login management
 
-/** <module> SWISH RDF renderer
+This module provides basic login and  password management facilities for
+SWISH.  You can create an authenticated SWISH server by
 
-Render RDF data.
+  1. Loading this library
+  2. Add one or more users to the passwd file using swish_add_user/3
+
+     ==
+     ?- swish_add_user("Bob", "Bob's secret", []).
+     ==
+
+As a result, trying to create the  first pengine (e.g., using _|Run!|_),
+the server will challenge the user.  The   logged  in  user is available
+through pengine_user/1.
 */
 
-%%	term_rendering(+Term, +Vars, +Options)//
-%
-%	Renders Term as a uri.  Furt
+pengines:authentication_hook(_Request, _Application, anonymous).
 
-term_rendering(Term, _Vars, Options) -->
-	{ is_rdf(Term)
-	}, !,
-	rdf_link(Term, [target('cliopatria-localview')|Options]).
-
-is_rdf(Term) :-
-	is_uri(Term), !.
-is_rdf(literal(Value)) :-
-	ground(Value),
-	is_literal(Value).
-
-is_uri(Term) :-
-	atom(Term),
-	(   uri_is_global(Term)
-	->  true
-	;   rdf_is_bnode(Term)
-	).
-
-is_literal(Atomic) :- is_plain_literal(Atomic).
-is_literal(type(Type, Literal)) :- is_uri(Type), is_plain_literal(Literal).
-is_literal(lang(Lang, Literal)) :- atom(Lang),   is_plain_literal(Literal).
-
-is_plain_literal(Value) :-
-	atomic(Value).
+pengines:not_sandboxed(_User, _Application).

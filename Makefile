@@ -12,7 +12,7 @@ LIBS=	$(addprefix lib/trill_on_swish/, $(SWISHLIB)) \
 JS=web/js/trill_on_swish-min.js web/js/trill_on_swish-min.js.gz web/js/require.js
 CSS=web/css/trill_on_swish-min.css web/css/trill_on_swish-min.css.gz web/css/print.css
 ICON_FILES=dead.png error.png running.gif page-fold-20.png \
-	   red_bird.svg pl.png swinb.png owl.png \
+	   red_bird.svg red_bird_op.svg pl.png swinb.png owl.png \
 	   select.png
 ICONS=$(addprefix web/icons/, $(ICON_FILES))
 HELP=$(addprefix web/help/, $(notdir $(wildcard src/web/help/*.html)))

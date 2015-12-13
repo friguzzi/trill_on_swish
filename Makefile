@@ -11,8 +11,8 @@ LIBS=	$(addprefix lib/trill_on_swish/, $(SWISHLIB)) \
 	$(addprefix lib/trill_on_swish/render/, $(RENDER))
 JS=web/js/trill_on_swish-min.js web/js/trill_on_swish-min.js.gz web/js/require.js
 CSS=web/css/trill_on_swish-min.css web/css/trill_on_swish-min.css.gz web/css/print.css
-ICON_FILES=owl_25_years.png dead.png error.png running.gif page-fold-20.png \
-	   COMMIT_logo.png Synerscope-logo.png VU-logo.png pl.png swinb.png \
+ICON_FILES=dead.png error.png running.gif page-fold-20.png \
+	   red_bird.svg pl.png swinb.png owl.png \
 	   select.png
 ICONS=$(addprefix web/icons/, $(ICON_FILES))
 HELP=$(addprefix web/help/, $(notdir $(wildcard src/web/help/*.html)))

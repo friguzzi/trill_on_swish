@@ -320,31 +320,33 @@ make_expl(Ind,S,[H|T],Expl1,ABox,[Expl2|Expl]):-
 % -------------
 % rules application
 % -------------
-apply_all_rules(ABox0,ABox2):-
-  apply_det_rules([o_rule,and_rule,unfold_rule,add_exists_rule,forall_rule,forall_plus_rule,exists_rule,min_rule],
-                  ABox0,ABox1), 
+apply_all_rules(ABox0,ABox):-
+  apply_det_rules([o_rule,and_rule,unfold_rule,add_exists_rule,forall_rule,forall_plus_rule,exists_rule,min_rule],ABox0,ABox1),
   (ABox0=ABox1 -> 
-  ABox2=ABox1;
-  apply_all_rules(ABox1,ABox2)).
+  ABox=ABox1;
+  apply_all_rules(ABox1,ABox)).
   
-apply_det_rules([],ABox,ABox1):-
-  apply_nondet_rules([or_rule,max_rule],ABox,ABox1).
+apply_det_rules([],ABox0,ABox):-
+  apply_nondet_rules([or_rule,max_rule],ABox0,ABox).
+  
+apply_det_rules([H|_],ABox0,ABox):-
+  %C=..[H,ABox,ABox1],
+  once(call(H,ABox0,ABox)).
 
-apply_det_rules([H|_],ABox,ABox1):-
-  call(H,ABox,ABox),!.
+apply_det_rules([_|T],ABox0,ABox):-
+  apply_det_rules(T,ABox0,ABox).
 
-apply_det_rules([_|T],ABox,ABox1):-
-  apply_det_rules(T,ABox,ABox1).
 
 apply_nondet_rules([],ABox,ABox).
 
-apply_nondet_rules([H|_],ABox,ABox1):-
-  call(H,ABox,L),!,
-  member(ABox1,L),
-  dif(ABox,ABox1).
+apply_nondet_rules([H|_],ABox0,ABox):-
+  %C=..[H,ABox,L],
+  once(call(H,ABox0,L)),
+  member(ABox,L),
+  dif(ABox0,ABox).
 
-apply_nondet_rules([_|T],ABox,ABox1):-
-  apply_nondet_rules(T,ABox,ABox1).
+apply_nondet_rules([_|T],ABox0,ABox):-
+  apply_nondet_rules(T,ABox0,ABox).
   
 
 

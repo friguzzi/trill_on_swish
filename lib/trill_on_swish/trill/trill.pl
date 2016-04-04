@@ -331,7 +331,7 @@ apply_det_rules([],ABox0,ABox):-
   
 apply_det_rules([H|_],ABox0,ABox):-
   %C=..[H,ABox,ABox1],
-  once(call(H,ABox0,ABox)).
+  call(H,ABox0,ABox),!.
 
 apply_det_rules([_|T],ABox0,ABox):-
   apply_det_rules(T,ABox0,ABox).
@@ -341,7 +341,7 @@ apply_nondet_rules([],ABox,ABox).
 
 apply_nondet_rules([H|_],ABox0,ABox):-
   %C=..[H,ABox,L],
-  once(call(H,ABox0,L)),
+  call(H,ABox0,L),!,
   member(ABox,L),
   dif(ABox0,ABox).
 

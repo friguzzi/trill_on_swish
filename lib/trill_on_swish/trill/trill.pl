@@ -331,7 +331,7 @@ apply_det_rules([],ABox,ABox1):-
   apply_nondet_rules([or_rule,max_rule],ABox,ABox1).
 
 apply_det_rules([H|_],ABox,ABox1):-
-  once(call(H,Tab0,Tab)).
+  once(call(H,ABox,ABox)).
 
 apply_det_rules([_|T],ABox,ABox1):-
   apply_det_rules(T,ABox,ABox1).
@@ -339,7 +339,7 @@ apply_det_rules([_|T],ABox,ABox1):-
 apply_nondet_rules([],ABox,ABox).
 
 apply_nondet_rules([H|_],ABox,ABox1):-
-  once(call(H,Tab0,L)),
+  once(call(H,ABox,L)),
   member(ABox1,L),
   dif(ABox,ABox1).
 

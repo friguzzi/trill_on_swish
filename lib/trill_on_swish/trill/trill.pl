@@ -1884,7 +1884,9 @@ compute_prob(Expl,Prob):-
   retractall(na(_,_)),
   retractall(rule_n(_)),
   assert(rule_n(0)),
-  init_test(100,Env),
+  get_trill_current_module(Name),
+  findall(1,Name:annotationAssertion('https://sites.google.com/a/unife.it/ml/disponte#probability',_,_),NAnnAss),length(NAnnAss,NV),
+  init_test(NV,Env),
   build_bdd(Env,Expl,BDD),
   ret_prob(Env,BDD,Prob),
   end_test(Env), !.

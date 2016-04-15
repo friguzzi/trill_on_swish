@@ -30,7 +30,7 @@
 %:-['trillProbComputation'].
 
 :- thread_local
-	ind/1
+	ind/1,
 	exp_found/1.
 
 %:- yap_flag(unknown,fail).

@@ -596,7 +596,7 @@ unfold_rule((ABox0,Tabs),([(classAssertion(D,Ind),[complementOf(C)|Expl])|ABox],
 add_nominal(D,Ind,ABox0,ABox):-
   ((D = oneOf(_),
     \+ member(nominal(Ind),ABox0))
-    ->
+    *->
    (
       ABox1 = [nominal(Ind)|ABox0],
       (member((classAssertion('Thing',Ind),_E),ABox1)

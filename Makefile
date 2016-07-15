@@ -30,8 +30,9 @@ CLIENTS=$(addprefix client/, $(CLIENTFILES))
 EXAMPLESFILES=biopaxLevel3.pl BRCA.pl DBPedia.pl examples.swinb \
               peoplePets.pl vicodi.pl commander.pl johnEmployee.pl index.json
 EXAMPLES=$(addprefix examples/, $(EXAMPLESFILES))
-PROFILESFILES=00-Empty.pl 00-Empty.swinb 10-Non-Probabilistic.pl \
-             10-Non-Probabilistic.swinb 20-Probabilistic.pl 20-Probabilistic.swinb
+PROFILESFILES=00-Empty.pl 00-Empty.swinb 10-Empty-TRILL.pl 10-Empty-TRILL.swinb \
+              20-Non-Probabilistic-TRILL.pl 20-Non-Probabilistic-TRILL.swinb \
+              30-Probabilistic-TRILL.pl 30-Probabilistic-TRILL.swinb
 PROFILES=$(addprefix profiles/, $(PROFILESFILES))
 CMFILES=mode/htmlmixed/htmlmixed.js \
 	mode/javascript/javascript.js \

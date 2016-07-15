@@ -27,9 +27,10 @@
     the GNU General Public License.
 */
 
-:- module(trill_on_swish_markdown, []).
+:- module(swish_markdown, []).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
+:- use_module(library(http/http_client)).
 :- use_module(library(http/html_write)).
 :- use_module(library(http/html_head)).
 :- use_module(library(pldoc/doc_html),
@@ -47,7 +48,7 @@
 This module translates markdown cells for teh SWISH Notebook into HTML
 */
 
-:- http_handler(trill_on_swish(markdown), markdown, [id(markdown)]).
+:- http_handler(swish(markdown), markdown, [id(markdown)]).
 
 %%	markdown(+Request)
 %
@@ -55,12 +56,20 @@ This module translates markdown cells for teh SWISH Notebook into HTML
 %	document.
 
 markdown(Request) :-
+	option(method(get), Request), !,
         http_parameters(Request,
                         [ text(Data, [optional(true), default('')])
                         ]),
         atom_codes(Data, Codes),
         wiki_file_codes_to_dom(Codes, '/', DOM), % FIXME: What file to pass?
         phrase(html(DOM), Tokens),
+        format('Content-type: text/html; charset=UTF-8\n\n'),
+        print_html(Tokens).
+markdown(Request) :-
+	option(method(post), Request), !,
+	http_read_data(Request, Codes, [to(codes)]),
+	wiki_file_codes_to_dom(Codes, '/', DOM),
+	phrase(html(DOM), Tokens),
         format('Content-type: text/html; charset=UTF-8\n\n'),
         print_html(Tokens).
 
@@ -91,8 +100,6 @@ wiki_file_codes_to_dom(String, File, DOM) :-
 
 prolog:doc_autolink_extension(swinb, notebook).
 
-prolog:doc_autolink_extension(owl, program).
-
 :- public
 	file//2.
 
@@ -108,21 +115,21 @@ prolog:doc_autolink_extension(owl, program).
 %	  ```
 
 :- multifile
-	trill_on_swish_config:source_alias/2.
+	swish_config:source_alias/2.
 
 file(File, Options) -->
 	{ once(sub_atom(File, Pre, _, _Post, /)),
 	  sub_atom(File, 0, Pre, _, Alias),
-	  trill_on_swish_config:source_alias(Alias, _Options),
+	  swish_config:source_alias(Alias, _Options),
 	  option(label(Label), Options),
-	  http_location_by_id(trill_on_swish, Swish),
+	  http_location_by_id(swish, Swish),
 	  directory_file_path(Swish, File, HREF)
 	}, !,
 	html(a([class([alias,file]), href(HREF)], Label)).
 file(File, Options) -->
 	{ storage_file(File),
 	  option(label(Label), Options),
-	  http_location_by_id(trill_on_swish, Swish),
+	  http_location_by_id(swish, Swish),
 	  directory_file_path(Swish, p, StoreDir),
 	  directory_file_path(StoreDir, File, HREF)
 	}, !,

@@ -25,11 +25,11 @@
 	cpack:description
 
 """
-Make the [TRILL on SWISH](https://github.com/SWI-Prolog/trill_on_swish.git)
+Make the [TRILL on SWISH](https://github.com/friguzzi/trill_on_swish)
 package available as a ClioPatria _cpack_.
 In order to run TRILL on SWISH you have to install before TRILL usign the command _pack_install(trill)_ in a SWI Prolog console.
 
-To install it download it [here](https://github.com/SWI-Prolog/trill_on_swish.git), put the folder in Cliopatria/cpack and run the goal _cpack_configure(trill_on_swish)_ in the Cliopatria's console.
+To install it download it [here](https://github.com/friguzzi/trill_on_swish), put the folder in Cliopatria/cpack and run the goal _cpack_configure(trill_on_swish)_ in the Cliopatria's console.
 """ .
 
 

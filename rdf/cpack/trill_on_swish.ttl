@@ -27,7 +27,7 @@
 """
 Make the [TRILL on SWISH](https://github.com/SWI-Prolog/trill_on_swish.git)
 package available as a ClioPatria _cpack_.
-In order to run TRILL on SWISH you have to install before TRILL usign the command _pack\_install(trill)_ in SWI Prolog console.
+In order to run TRILL on SWISH you have to install before TRILL usign the command _pack_install(trill)_ in SWI Prolog console.
 """ .
 
 

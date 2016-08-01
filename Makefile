@@ -27,8 +27,8 @@ FONTFILES=glyphicons-halflings-regular.ttf \
 FONTS=$(addprefix $(FONTDIR)/, $(FONTFILES))
 CLIENTFILES=swish-ask.sh README.md sin-table.html
 CLIENTS=$(addprefix client/, $(CLIENTFILES))
-EXAMPLESFILES=biopaxLevel3.pl BRCA.pl DBPedia.pl examples.swinb \
-              peoplePets.pl vicodi.pl commander.pl johnEmployee.pl index.json
+EXAMPLESFILES=trill/biopaxLevel3.pl trill/BRCA.pl trill/DBPedia.pl trill/examples_trill.swinb \
+              trill/peoplePets.pl trill/vicodi.pl trill/commander.pl trill/johnEmployee.pl index.json
 EXAMPLES=$(addprefix examples/, $(EXAMPLESFILES))
 PROFILESFILES=00-Empty.pl 00-Empty.swinb 10-Empty-TRILL.pl 10-Empty-TRILL.swinb \
               20-Non-Probabilistic-TRILL.pl 20-Non-Probabilistic-TRILL.swinb \

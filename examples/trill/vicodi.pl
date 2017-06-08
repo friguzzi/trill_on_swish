@@ -1,6 +1,10 @@
 :-use_module(library(trill)).
 
-:-trill.
+:- if(current_predicate(use_rendering/1)).
+:- use_rendering(graphviz).
+:- endif.
+
+:- trill. % or :- trillp. or :- tornado.
 
 /*
 This knowledge base is an extract of the Vicodi knowledge base that contains information on European history.

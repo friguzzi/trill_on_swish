@@ -1,13 +1,13 @@
 <div class="notebook">
 
 <div class="nb-cell markdown">
-This notebook loads TRILL
+This notebook loads TRILLP
 </div>
 
 <div class="nb-cell program" data-background="true" data-singleline="true">
 :- use_module(library(trill)).
 
-:- trill.
+:- trillp.
 </div>
 
 

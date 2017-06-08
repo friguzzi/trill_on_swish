@@ -1,6 +1,10 @@
 :-use_module(library(trill)).
 
-:-trill.
+:- if(current_predicate(use_rendering/1)).
+:- use_rendering(graphviz).
+:- endif.
+
+:- trill. % or :- trillp. or :- tornado.
 
 /*
 An extract of the DBPedia ontology, it contains structured information from Wikipedia.

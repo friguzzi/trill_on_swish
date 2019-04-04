@@ -18,10 +18,6 @@
 		       foaf:name "Riccardo Zese" ;
                        foaf:mbox <mailto:riccardo.zese@unife.it> ;
 		     ] ;
-                     [ a foaf:Person ;
-		       foaf:name "Jan Wielemaker" ;
-		       foaf:mbox <mailto:J.Wielemaker@cs.vu.nl> ;
-		     ] ;
 	cpack:primaryRepository
 	    [ a cpack:GitRepository ;
 	      cpack:gitURL <https://github.com/friguzzi/trill_on_swish.git>
@@ -47,6 +43,8 @@ interface to ClioPatria, providing:
 
 To install TRILL-on-SWISH on Cliopatria download the code [here](https://github.com/friguzzi/trill_on_swish),
 put the folder in Cliopatria/cpack and run the goal _cpack_configure(trill_on_swish)_ in the Cliopatria's console.
+
+NOTE that if you want to install TRILL-on-SWISH you have to remove first SWISH as it is included in TRILL-on-SWISH. Therefore, you can install TRILL-on-SWISH and use it as it is SWISH with the library TRILL pre-loaded.
 """ .
 
 

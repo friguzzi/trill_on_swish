@@ -35,15 +35,10 @@
 :- module(gitty,
 	  [ gitty_open/2,		% +Store, +Options
 	    gitty_close/1,		% +Store
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-
-	    gitty_file/3,		% +Store, ?Name, ?Hash
-=======
 	    gitty_driver/2,		% +Store, -Driver
 
 	    gitty_file/3,		% +Store, ?Name, ?Hash
 	    gitty_file/4,		% +Store, ?Name, ?Ext, ?Hash
->>>>>>> upstream/master:lib/swish/gitty.pl
 	    gitty_create/5,		% +Store, +Name, +Data, +Meta, -Commit
 	    gitty_update/5,		% +Store, +Name, +Data, +Meta, -Commit
 	    gitty_commit/3,		% +Store, +Name, -Meta
@@ -51,13 +46,10 @@
 	    gitty_history/4,		% +Store, +Name, -History, +Options
 	    gitty_hash/2,		% +Store, ?Hash
 
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-=======
 	    gitty_fsck/1,		% +Store
 	    gitty_save/4,		% +Store, +Data, +Type, -Hash
 	    gitty_load/4,		% +Store, +Hash, -Data, -Type
 
->>>>>>> upstream/master:lib/swish/gitty.pl
 	    gitty_reserved_meta/1,	% ?Key
 	    is_gitty_hash/1,		% @Term
 
@@ -106,64 +98,6 @@ the newly created (gitty_create/5) or updated object (gitty_update/5).
 
 :- dynamic
 	gitty_store_type/2.		% +Store, -Module
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-
-%%	gitty_open(+Store, +Options) is det.
-%
-%	Open a gitty store according to Options.  Defined
-%	options are:
-%
-%	  - driver(+Driver)
-%	  Backend driver to use.  One of =files= or =bdb=.  When
-%	  omitted and the store exists, the current store is
-%	  examined.  If the store does not exist, the default
-%	  is =files=.
-
-gitty_open(Store, Options) :-
-	(   exists_directory(Store)
-	->  true
-	;   existence_error(directory, Store)
-	),
-	(   option(driver(Driver), Options)
-	->  true
-	;   default_driver(Store, Driver)
-	),
-	set_driver(Store, Driver).
-
-default_driver(Store, Driver) :-
-	directory_file_path(Store, ref, RefDir),
-	exists_directory(RefDir), !,
-	Driver = files.
-default_driver(Store, Driver) :-
-	directory_file_path(Store, heads, RefDir),
-	exists_file(RefDir), !,
-	Driver = bdb.
-default_driver(_, files).
-
-set_driver(Store, Driver) :-
-	must_be(atom, Store),
-	(   driver_module(Driver, Module)
-	->  retractall(gitty_store_type(Store, _)),
-	    asserta(gitty_store_type(Store, Module))
-	;   domain_error(gitty_driver, Driver)
-	).
-
-driver_module(files, gitty_driver_files).
-driver_module(bdb,   gitty_driver_bdb).
-
-store_driver_module(Store, Module) :-
-	atom(Store), !,
-	gitty_store_type(Store, Module).
-
-%%	gitty_close(+Store) is det.
-%
-%	Close access to the Store.
-
-gitty_close(Store) :-
-	store_driver_module(Store, M),
-	M:gitty_close(Store).
-=======
->>>>>>> upstream/master:lib/swish/gitty.pl
 
 %%	gitty_open(+Store, +Options) is det.
 %
@@ -235,15 +169,10 @@ gitty_close(Store) :-
 %	HEAD revision.
 
 gitty_file(Store, Head, Hash) :-
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-	store_driver_module(Store, M),
-	M:gitty_file(Store, Head, Hash).
-=======
 	gitty_file(Store, Head, _Ext, Hash).
 gitty_file(Store, Head, Ext, Hash) :-
 	store_driver_module(Store, M),
 	M:gitty_file(Store, Head, Ext, Hash).
->>>>>>> upstream/master:lib/swish/gitty.pl
 
 %%	gitty_create(+Store, +Name, +Data, +Meta, -Commit) is det.
 %
@@ -298,8 +227,6 @@ gitty_update(Store, Name, Data, Meta, CommitRet) :-
 	      ( delete_object(Store, CommitHash),
 		throw(E))).
 
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-=======
 %!	filter_identity(+Meta0, -Meta)
 %
 %	Remove identification information  from   the  previous  commit.
@@ -320,7 +247,6 @@ delete_keys([_|T], Dict0, Dict) :-
 	delete_keys(T, Dict0, Dict).
 
 
->>>>>>> upstream/master:lib/swish/gitty.pl
 %%	gitty_update_head(+Store, +Name, +OldCommit, +NewCommit) is det.
 %
 %	Update the head of a gitty  store   for  Name.  OldCommit is the
@@ -472,8 +398,6 @@ size_in_bytes(Data, Size) :-
 	    close(Out)).
 
 
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-=======
 %!	gitty_fsck(+Store) is det.
 %
 %	Check the integrity of store.
@@ -489,16 +413,10 @@ fsck_object_msg(Store, Hash) :-
 fsck_object_msg(Store, Hash) :-
 	print_message(error, gitty(Store, fsck(bad_object(Hash)))).
 
->>>>>>> upstream/master:lib/swish/gitty.pl
 %%	fsck_object(+Store, +Hash) is semidet.
 %
 %	Test the integrity of object Hash in Store.
 
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-:- public fsck_object/2.
-fsck_object(Store, Hash) :-
-	load_object(Store, Hash, Data, Type, Size),
-=======
 :- public
 	fsck_object/2,
 	check_object/4.
@@ -508,18 +426,14 @@ fsck_object(Store, Hash) :-
 	check_object(Hash, Data, Type, Size).
 
 check_object(Hash, Data, Type, Size) :-
->>>>>>> upstream/master:lib/swish/gitty.pl
 	format(string(Hdr), '~w ~d\u0000', [Type, Size]),
 	sha_new_ctx(Ctx0, []),
 	sha_hash_ctx(Ctx0, Hdr, Ctx1, _),
 	sha_hash_ctx(Ctx1, Data, _, HashBin),
 	hash_atom(HashBin, Hash).
 
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-=======
 
 
->>>>>>> upstream/master:lib/swish/gitty.pl
 
 %%	load_object(+Store, +Hash, -Data) is det.
 %%	load_object(+Store, +Hash, -Data, -Type, -Size) is det.
@@ -531,8 +445,6 @@ load_object(Store, Hash, Data) :-
 load_object(Store, Hash, Data, Type, Size) :-
 	store_driver_module(Store, Module),
 	Module:load_object(Store, Hash, Data, Type, Size).
-<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
-=======
 
 %!	gitty_save(+Store, +Data, +Type, -Hash) is det.
 %!	gitty_load(+Store, +Hash, -Data, -Type) is det.
@@ -547,7 +459,6 @@ gitty_save(Store, Data, Type, Hash) :-
 	save_object(Store, Data, Type, Hash).
 gitty_load(Store, Hash, Data, Type) :-
 	load_object(Store, Hash, Data, Type, _Size).
->>>>>>> upstream/master:lib/swish/gitty.pl
 
 %%	gitty_hash(+Store, ?Hash) is nondet.
 %
@@ -573,33 +484,6 @@ gitty_reserved_meta(name).
 gitty_reserved_meta(time).
 gitty_reserved_meta(data).
 gitty_reserved_meta(previous).
-
-		 /*******************************
-		 *	    FSCK SUPPORT	*
-		 *******************************/
-
-:- public
-	delete_object/2,
-	delete_head/2,
-	set_head/3.
-
-%%	delete_head(+Store, +Head) is det.
-%
-%	Delete Head from the administration.  Used if the head is
-%	inconsistent.
-
-delete_head(Store, Head) :-
-	store_driver_module(Store, Module),
-	Module:delete_head(Store, Head).
-
-%%	set_head(+Store, +File, +Head) is det.
-%
-%	Register Head as the Head hash for File, removing possible
-%	old head.
-
-set_head(Store, File, Head) :-
-	store_driver_module(Store, Module),
-	Module:set_head(Store, File, Head).
 
 
 %%	is_gitty_hash(@Term) is semidet.

@@ -18,18 +18,35 @@
 		       foaf:name "Riccardo Zese" ;
                        foaf:mbox <mailto:riccardo.zese@unife.it> ;
 		     ] ;
+                     [ a foaf:Person ;
+		       foaf:name "Jan Wielemaker" ;
+		       foaf:mbox <mailto:J.Wielemaker@cs.vu.nl> ;
+		     ] ;
 	cpack:primaryRepository
 	    [ a cpack:GitRepository ;
 	      cpack:gitURL <https://github.com/friguzzi/trill_on_swish.git>
 	    ] ;
 	cpack:description
 
-"""
+"""Package description goes here.  You can use markdown.
 Make the [TRILL on SWISH](https://github.com/friguzzi/trill_on_swish)
 package available as a ClioPatria _cpack_.
 In order to run TRILL on SWISH you have to install before TRILL usign the command _pack_install(trill)_ in a SWI Prolog console.
 
-To install it download it [here](https://github.com/friguzzi/trill_on_swish), put the folder in Cliopatria/cpack and run the goal _cpack_configure(trill_on_swish)_ in the Cliopatria's console.
+TRILL on SWISH is based on SWI-Prolog [SWISH](https://github.com/SWI-Prolog/swish.git) 
+and makes a copy of the SWISH package with the support package TRILL-on-SWISH
+available as a ClioPatria _cpack_.  SWISH brings a Prolog
+interface to ClioPatria, providing:
+
+  - Ask RDF queries about our data
+  - Make example programs available about your data
+  - Save an example program and share it with anyone on the web
+  - Collaborate on a program using [TogetherJS](https://togetherjs.com/)
+  - Manage a server remotely from the Prolog shell (requires login with
+    `admin` rigths).
+
+To install TRILL-on-SWISH on Cliopatria download the code [here](https://github.com/friguzzi/trill_on_swish),
+put the folder in Cliopatria/cpack and run the goal _cpack_configure(trill_on_swish)_ in the Cliopatria's console.
 """ .
 
 

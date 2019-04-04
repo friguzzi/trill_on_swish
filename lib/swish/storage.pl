@@ -35,9 +35,6 @@
 
 :- module(web_storage,
 	  [ storage_file/1,			% ?File
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-	    storage_file/3			% +File, -Data, -Meta
-=======
 	    storage_file_extension/2,		% ?File, ?Extension
 	    storage_file/3,			% +File, -Data, -Meta
 	    storage_meta_data/2,		% +File, -Meta
@@ -53,7 +50,6 @@
 
 	    use_gitty_file/1,			% +File
 	    use_gitty_file/2			% +File, +Options
->>>>>>> upstream/master:lib/swish/storage.pl
 	  ]).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_parameters)).
@@ -65,31 +61,24 @@
 :- use_module(library(apply)).
 :- use_module(library(option)).
 :- use_module(library(debug)).
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-:- use_module(library(solution_sequences)).
-=======
 :- use_module(library(broadcast)).
 :- use_module(library(readutil)).
 :- use_module(library(solution_sequences)).
 :- use_module(library(dcg/basics)).
 :- use_module(library(pcre)).
 :- use_module(library(pengines_io)).
->>>>>>> upstream/master:lib/swish/storage.pl
 
 :- use_module(page).
 :- use_module(gitty).
 :- use_module(patch).
 :- use_module(config).
 :- use_module(search).
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-=======
 :- use_module(authenticate).
 :- use_module(pep).
 
 :- meta_predicate
 	use_gitty_file(:),
 	use_gitty_file(:, +).
->>>>>>> upstream/master:lib/swish/storage.pl
 
 /** <module> Store files on behalve of web clients
 
@@ -155,21 +144,6 @@ create_store(Dir) :-
 	      error(permission_error(create, directory, Dir), _),
 	      fail), !.
 
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-:- http_handler(swish('p/'), web_storage, [ id(web_storage), prefix ]).
-
-:- initialization open_gittystore.
-
-open_gittystore :-
-	setting(directory, Dir),
-	(   exists_directory(Dir)
-	->  true
-	;   make_directory(Dir)
-	),
-	gitty_open(Dir, []).
-
-=======
->>>>>>> upstream/master:lib/swish/storage.pl
 
 %%	web_storage(+Request) is det.
 %
@@ -185,21 +159,11 @@ web_storage(Request) :-
 	storage(Method, Request, [identity(Auth)]).
 
 :- multifile
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-	swish_config:authenticate/2.
-
-storage(get, Request) :-
-	(   swish_config:authenticate(Request, User)
-	->  Options = [user(User)]
-	;   Options = []
-	),
-=======
 	swish_config:authenticate/2,
 	swish_config:chat_count_about/2,
 	swish_config:user_profile/2.		% +Request, -Profile
 
 storage(get, Request, Options) :-
->>>>>>> upstream/master:lib/swish/storage.pl
 	http_parameters(Request,
 			[ format(Fmt,  [ oneof([swish,raw,json,history,diff]),
 					 default(swish),
@@ -224,11 +188,7 @@ storage(get, Request, Options) :-
 	),
 	storage_get(Request, Format, Options).
 
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-storage(post, Request) :-
-=======
 storage(post, Request, Options) :-
->>>>>>> upstream/master:lib/swish/storage.pl
 	http_read_json_dict(Request, Dict),
 	option(data(Data), Dict, ""),
 	option(type(Type), Dict, pl),
@@ -406,25 +366,6 @@ filter_meta(Dict0, HasID, Dict) :-
 	filter_pairs(Pairs0, HasID, Pairs),
 	dict_pairs(Dict, Tag, Pairs).
 
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-filter_pairs([], []).
-filter_pairs([H|T0], [H|T]) :-
-	H = K-V,
-	meta_allowed(K, Type),
-	is_of_type(Type, V), !,
-	filter_pairs(T0, T).
-filter_pairs([_|T0], T) :-
-	filter_pairs(T0, T).
-
-meta_allowed(public,	     boolean).
-meta_allowed(example,	     boolean).
-meta_allowed(author,	     string).
-meta_allowed(email,	     string).
-meta_allowed(title,	     string).
-meta_allowed(tags,	     list(string)).
-meta_allowed(description,    string).
-meta_allowed(commit_message, string).
-=======
 filter_pairs([], _, []).
 filter_pairs([K-V0|T0], HasID, [K-V|T]) :-
 	meta_allowed(K, HasID, Type),
@@ -462,7 +403,6 @@ auth_template(_{identity:_, profile_id:_}).
 auth_template(_{profile_id:_}).
 auth_template(_{identity:_}).
 
->>>>>>> upstream/master:lib/swish/storage.pl
 
 %%	storage_get(+Request, +Format, +Options) is det.
 %
@@ -484,27 +424,14 @@ auth_template(_{identity:_}).
 
 storage_get(Request, swish, Options) :-
 	swish_reply_config(Request, Options), !.
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-storage_get(Request, Format, _) :-
-	setting(directory, Dir),
-=======
 storage_get(Request, Format, Options) :-
 	storage_dir(Dir),
->>>>>>> upstream/master:lib/swish/storage.pl
 	request_file_or_hash(Request, Dir, FileOrHash, Type),
 	Obj =.. [Type,FileOrHash],
 	authorized(gitty(download(Obj, Format)), Options),
 	storage_get(Format, Dir, Type, FileOrHash, Request),
 	broadcast(swish(download(Dir, FileOrHash, Format))).
 
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-storage_get(swish, Dir, _, FileOrHash, Request) :-
-	gitty_data(Dir, FileOrHash, Code, Meta),
-	swish_reply([code(Code),file(FileOrHash),st_type(gitty),meta(Meta)],
-		    Request).
-storage_get(raw, Dir, _, FileOrHash, _Request) :-
-	gitty_data(Dir, FileOrHash, Code, Meta),
-=======
 storage_get(swish, Dir, Type, FileOrHash, Request) :-
 	gitty_data_or_default(Dir, Type, FileOrHash, Code, Meta),
 	chat_count(Meta, Count),
@@ -517,7 +444,6 @@ storage_get(swish, Dir, Type, FileOrHash, Request) :-
 		   Request).
 storage_get(raw, Dir, Type, FileOrHash, _Request) :-
 	gitty_data_or_default(Dir, Type, FileOrHash, Code, Meta),
->>>>>>> upstream/master:lib/swish/storage.pl
 	file_mime_type(Meta.name, MIME),
 	format('Content-type: ~w~n~n', [MIME]),
 	format('~s', [Code]).
@@ -882,24 +808,6 @@ storage_unpack :-
 
 
 		 /*******************************
-		 *	    INTERFACE		*
-		 *******************************/
-
-%%	storage_file(?File) is semidet.
-%%	storage_file(?File, -Data, -Meta) is semidet.
-%
-%	True if File is known in the store.
-
-storage_file(File) :-
-	setting(directory, Dir),
-	gitty_file(Dir, File, _Head).
-
-storage_file(File, Data, Meta) :-
-	setting(directory, Dir),
-	gitty_data(Dir, File, Data, Meta).
-
-
-		 /*******************************
 		 *	 SEARCH SUPPORT		*
 		 *******************************/
 
@@ -920,11 +828,7 @@ storage_file(File, Data, Meta) :-
 %	@tbd We should only demand public on public servers.
 
 swish_search:typeahead(file, Query, FileInfo, _Options) :-
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-	setting(directory, Dir),
-=======
 	open_gittystore(Dir),
->>>>>>> upstream/master:lib/swish/storage.pl
 	gitty_file(Dir, File, Head),
 	gitty_commit(Dir, Head, Meta),
 	Meta.get(public) == true,
@@ -954,11 +858,7 @@ swish_search:typeahead(store_content, Query, FileInfo, Options) :-
 	limit(25, search_store_content(Query, FileInfo, Options)).
 
 search_store_content(Query, FileInfo, Options) :-
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-	setting(directory, Dir),
-=======
 	open_gittystore(Dir),
->>>>>>> upstream/master:lib/swish/storage.pl
 	gitty_file(Dir, File, Head),
 	gitty_data(Dir, Head, Data, Meta),
 	Meta.get(public) == true,
@@ -971,8 +871,6 @@ search_file(File, Meta, Data, Query, FileInfo, Options) :-
 	FileInfo = Meta.put(_{type:"store", file:File,
 			      line:LineNo, text:Line, query:Query
 			     }).
-<<<<<<< HEAD:lib/trill_on_swish/storage.pl
-=======
 
 
 		 /*******************************
@@ -1333,4 +1231,3 @@ notify_event(created(File, Commit)) :-
 
 prolog:message(moved_old_store(Old, New)) -->
 	[ 'Moving SWISH file store from ~p to ~p'-[Old, New] ].
->>>>>>> upstream/master:lib/swish/storage.pl

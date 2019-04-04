@@ -34,13 +34,9 @@
 :- use_module(library(http/html_write)).
 :- use_module(components(label)).
 :- use_module(library(uri)).
-<<<<<<< HEAD:lib/trill_on_swish/render/rdf.pl
-:- use_module(library(trill_on_swish/render)).
-=======
 :- use_module(library(lists)).
 :- use_module(library(apply)).
 :- use_module(library(swish/render)).
->>>>>>> upstream/master:lib/swish/render/rdf.pl
 
 :- register_renderer(rdf, "Render RDF terms").
 
@@ -68,12 +64,6 @@ term_rendering(List, _Vars, Options) -->
 	html(span([class('rdf-list'), style('display:inline-block')],
 		  \rdf_list(Truncated, Options))).
 term_rendering(Term, _Vars, Options) -->
-<<<<<<< HEAD:lib/trill_on_swish/render/rdf.pl
-	{ ground(Term),
-	  is_rdf(Term)
-	}, !,
-	rdf_link(Term, [target('cliopatria-localview')|Options]).
-=======
 	{ is_rdf(Term) }, !,
 	rdf_link(Term, [target('cliopatria-localview')|Options]).
 
@@ -109,19 +99,13 @@ truncate(List, List, _).
 %%	is_rdf(@Term)
 %
 %	True if Term is an RDF term.
->>>>>>> upstream/master:lib/swish/render/rdf.pl
 
 is_rdf(Term) :-
 	is_uri(Term), !.
 is_rdf(literal(Value)) :-
 	is_literal(Value).
-<<<<<<< HEAD:lib/trill_on_swish/render/rdf.pl
-is_rdf(^^(_,Type)) :- atom(Type).
-is_rdf(@(_,Lang)) :- atom(Lang).
-=======
 is_rdf(^^(Value,Type)) :- atom(Type), ground(Value).
 is_rdf(@(Text,Lang)) :- atom(Lang), is_text(Text).
->>>>>>> upstream/master:lib/swish/render/rdf.pl
 
 is_uri(Term) :-
 	atom(Term),

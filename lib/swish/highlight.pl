@@ -34,12 +34,8 @@
 */
 
 :- module(swish_highlight,
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	  [ current_highlight_state/2
-=======
 	  [ current_highlight_state/2,		% +UUID, -State
 	    man_predicate_summary/2		% +PI, -Summary
->>>>>>> upstream/master:lib/swish/highlight.pl
 	  ]).
 :- use_module(library(debug)).
 :- use_module(library(settings)).
@@ -179,21 +175,13 @@ insert([H|T], TB, ChPos0, ChPos, Changed) :-
 	->  Len	= 0
 	;   Changed = true,
 	    string_length(H, Len),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	    debug(cm(change), 'Insert ~q at ~d', [H, ChPos0]),
-=======
 	    debug(cm(change_text), 'Insert ~q at ~d', [H, ChPos0]),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	    insert_memory_file(TB, ChPos0, H)
 	),
 	ChPos1 is ChPos0+Len,
 	(   T == []
 	->  ChPos2 = ChPos1
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	;   debug(cm(change), 'Adding newline at ~d', [ChPos1]),
-=======
 	;   debug(cm(change_text), 'Adding newline at ~d', [ChPos1]),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	    Changed = true,
 	    insert_memory_file(TB, ChPos1, '\n'),
 	    ChPos2 is ChPos1+1
@@ -201,11 +189,6 @@ insert([H|T], TB, ChPos0, ChPos, Changed) :-
 	insert(T, TB, ChPos2, ChPos, Changed).
 
 :- dynamic
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor/4,			% UUID, MemFile, Role, Time
-	editor_last_access/2,			% UUID, Time
-	xref_upto_data/1.			% UUID
-=======
 	current_editor/5,		% UUID, MemFile, Role, Lock, Time
 	editor_last_access/2,		% UUID, Time
 	xref_upto_data/1.		% UUID
@@ -215,7 +198,6 @@ insert([H|T], TB, ChPos0, ChPos, Changed) :-
 %	Create a new editor for source UUID   from Change. The editor is
 %	created  in  a  locked  state  and    must   be  released  using
 %	release_editor/1 before it can be publically used.
->>>>>>> upstream/master:lib/swish/highlight.pl
 
 create_editor(UUID, Editor, Change) :-
 	must_be(atom, UUID),
@@ -226,9 +208,6 @@ create_editor(UUID, Editor, Change) :-
 	;   Role = source
 	),
 	get_time(Now),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	asserta(current_editor(UUID, Editor, Role, Now)).
-=======
 	mutex_create(Lock),
 	with_mutex(swish_create_editor,
 		   register_editor(UUID, Editor, Role, Lock, Now)), !.
@@ -240,7 +219,6 @@ register_editor(UUID, Editor, Role, Lock, Now) :-
 	\+ current_editor(UUID, _, _, _, _),
 	mutex_lock(Lock),
 	asserta(current_editor(UUID, Editor, Role, Lock, Now)).
->>>>>>> upstream/master:lib/swish/highlight.pl
 
 %%	current_highlight_state(?UUID, -State) is nondet.
 %
@@ -250,16 +228,10 @@ current_highlight_state(UUID,
 			highlight{data:Editor,
 				  role:Role,
 				  created:Created,
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-				  access:Access
-				 }) :-
-	current_editor(UUID, Editor, Role, Created),
-=======
 				  lock:Lock,
 				  access:Access
 				 }) :-
 	current_editor(UUID, Editor, Role, Lock, Created),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	(   editor_last_access(Editor, Access)
 	->  true
 	;   Access = Created
@@ -275,11 +247,7 @@ current_highlight_state(UUID,
 uuid_like(UUID) :-
 	split_string(UUID, "-", "", Parts),
 	maplist(string_length, Parts, [8,4,4,4,12]),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	\+ current_editor(UUID, _, _, _).
-=======
 	\+ current_editor(UUID, _, _, _, _).
->>>>>>> upstream/master:lib/swish/highlight.pl
 
 %%	destroy_editor(+UUID)
 %
@@ -294,23 +262,13 @@ destroy_editor(UUID) :-
 	mutex_unlock(Lock),
 	retractall(xref_upto_data(UUID)),
 	retractall(editor_last_access(UUID, _)),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(UUID, Editor, _, _), !,
-	(   xref_source_id(Editor, SourceID)
-=======
 	(   xref_source_id(UUID, SourceID)
->>>>>>> upstream/master:lib/swish/highlight.pl
 	->  xref_clean(SourceID),
 	    destroy_state_module(UUID)
 	;   true
 	),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	% destroy late to make xref_source_identifier/2 work.
-	retractall(current_editor(UUID, Editor, _, _)),
-=======
 	% destroy after xref_clean/1 to make xref_source_identifier/2 work.
 	retractall(current_editor(UUID, Editor, _, _, _)),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	free_memory_file(Editor).
 destroy_editor(_).
 
@@ -330,12 +288,8 @@ destroy_editor(_).
 :- dynamic
 	gced_editors/1.
 
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-editor_max_idle_time(3600).
-=======
 editor_max_idle_time(Time) :-
 	setting(swish:editor_max_idle_time, Time).
->>>>>>> upstream/master:lib/swish/highlight.pl
 
 gc_editors :-
 	get_time(Now),
@@ -350,53 +304,17 @@ gc_editors :-
 gc_editors :-
 	editor_max_idle_time(MaxIdle),
 	forall(garbage_editor(UUID, MaxIdle),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	       destroy_old_editor(UUID)).
-
-garbage_editor(UUID, TimeOut) :-
-	get_time(Now),
-	current_editor(UUID, _TB, _Role, Created),
-=======
 	       destroy_garbage_editor(UUID)).
 
 garbage_editor(UUID, TimeOut) :-
 	get_time(Now),
 	current_editor(UUID, _TB, _Role, _Lock, Created),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	Now - Created > TimeOut,
 	(   editor_last_access(UUID, Access)
 	->  Now - Access > TimeOut
 	;   true
 	).
 
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-destroy_old_editor(UUID) :-
-	with_mutex(swish_gc_editor,
-		   destroy_old_editor_sync(UUID)).
-
-destroy_old_editor_sync(UUID) :-
-	editor_max_idle_time(MaxIdle),
-	garbage_editor(UUID, MaxIdle), !,
-	debug(cm(gc), 'GC highlight state for ~q', [UUID]),
-	destroy_editor(UUID).
-destroy_old_editor_sync(_).
-
-%%	fetch_editor(+UUID, -MemFile) is semidet.
-%
-%	Fetch existing editor for source UUID. Make sure the last access
-%	time is updated to avoid concurrent GC of the editor.
-
-fetch_editor(UUID, TB) :-
-	with_mutex(swish_gc_editor,
-		   ( current_editor(UUID, TB, _Role, _),
-		     update_access(UUID)
-		   )).
-
-update_access(UUID) :-
-	get_time(Now),
-	retractall(editor_last_access(UUID, _)),
-	asserta(editor_last_access(UUID, Now)).
-=======
 destroy_garbage_editor(UUID) :-
 	fetch_editor(UUID, _TB), !,
 	destroy_editor(UUID).
@@ -458,7 +376,6 @@ update_access(UUID) :-
 	;   retractall(editor_last_access(UUID, _)),
 	    asserta(editor_last_access(UUID, Now))
 	).
->>>>>>> upstream/master:lib/swish/highlight.pl
 
 :- multifile
 	prolog:xref_source_identifier/2,
@@ -466,9 +383,6 @@ update_access(UUID) :-
 	prolog:xref_close_source/2.
 
 prolog:xref_source_identifier(UUID, UUID) :-
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(UUID, _, _, _).
-=======
 	current_editor(UUID, _, _, _, _).
 
 %%	prolog:xref_open_source(+UUID, -Stream)
@@ -477,15 +391,10 @@ prolog:xref_source_identifier(UUID, UUID) :-
 %	lock  it.  As  of  7.3.32   this    can   be  done  through  the
 %	prolog:xref_close_source/2 hook. In older  versions   we  get no
 %	callback on the close, so we must leave the editor unlocked.
->>>>>>> upstream/master:lib/swish/highlight.pl
 
 :- if(current_predicate(prolog_source:close_source/3)).
 prolog:xref_open_source(UUID, Stream) :-
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(UUID, TB, _Role, _), !,
-=======
 	fetch_editor(UUID, TB),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	open_memory_file(TB, read, Stream).
 
 prolog:xref_close_source(UUID, Stream) :-
@@ -511,18 +420,12 @@ codemirror_leave(Request) :-
 codemirror_leave_(Request) :-
 	http_read_json_dict(Request, Data, []),
 	(   atom_string(UUID, Data.get(uuid))
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	->  forall(current_editor(UUID, _TB, _Role, _),
-		   with_mutex(swish_gc_editor, destroy_editor(UUID)))
-	;   true
-=======
 	->  debug(cm(leave), 'Leaving editor ~p', [UUID]),
 	    (	fetch_editor(UUID, _TB)
 	    ->	destroy_editor(UUID)
 	    ;	debug(cm(leave), 'No editor for ~p', [UUID])
 	    )
 	;   debug(cm(leave), 'No editor?? (data=~p)', [Data])
->>>>>>> upstream/master:lib/swish/highlight.pl
 	),
 	reply_json_dict(true).
 
@@ -531,15 +434,9 @@ codemirror_leave_(Request) :-
 %	Mark that our cross-reference data might be obsolete
 
 mark_changed(MemFile, Changed) :-
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	(   Changed == true
-	->  current_editor(UUID, MemFile, _Role, _),
-	    retractall(xref_upto_data(UUID))
-=======
 	(   Changed == true,
 	    current_editor(UUID, MemFile, _Role, _, _)
 	->  retractall(xref_upto_data(UUID))
->>>>>>> upstream/master:lib/swish/highlight.pl
 	;   true
 	).
 
@@ -548,35 +445,6 @@ mark_changed(MemFile, Changed) :-
 xref(UUID) :-
 	xref_upto_data(UUID), !.
 xref(UUID) :-
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(UUID, MF, _Role, _),
-	xref_source_id(MF, SourceId),
-	xref_state_module(MF, Module),
-	xref_source(SourceId,
-		    [ silent(true),
-		      module(Module)
-		    ]),
-	asserta(xref_upto_data(UUID)).
-
-%%	xref_source_id(+TextBuffer, -SourceID) is det.
-%
-%	Find the object we need  to   examine  for cross-referencing. If
-%	this is an included file, this is the corresponding main file.
-
-%xref_source_id(TB, SourceId) :-
-%	get(TB, file, File), File \== @nil, !,
-%	get(File, absolute_path, Path0),
-%	absolute_file_name(Path0, Path),
-%	master_load_file(Path, [], Master),
-%	(   Master == Path
-%	->  SourceId = TB
-%	;   SourceId = Master
-%	).
-xref_source_id(TB, UUID) :-
-	current_editor(UUID, TB, _Role, _).
-
-%%	xref_state_module(+TB, -Module) is semidet.
-=======
 	setup_call_cleanup(
 	    fetch_editor(UUID, _TB),
 	    ( xref_source_id(UUID, SourceId),
@@ -597,17 +465,11 @@ xref_source_id(TB, UUID) :-
 xref_source_id(UUID, UUID).
 
 %%	xref_state_module(+UUID, -Module) is semidet.
->>>>>>> upstream/master:lib/swish/highlight.pl
 %
 %	True if we must run the cross-referencing   in  Module. We use a
 %	temporary module based on the UUID of the source.
 
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-xref_state_module(TB, UUID) :-
-	current_editor(UUID, TB, _Role, _),
-=======
 xref_state_module(UUID, UUID) :-
->>>>>>> upstream/master:lib/swish/highlight.pl
 	(   module_property(UUID, class(temporary))
 	->  true
 	;   set_module(UUID:class(temporary)),
@@ -660,11 +522,7 @@ codemirror_tokens_(Request) :-
 
 
 enriched_tokens(TB, _Data, Tokens) :-		% source window
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(UUID, TB, source, _), !,
-=======
 	current_editor(UUID, TB, source, _Lock, _), !,
->>>>>>> upstream/master:lib/swish/highlight.pl
 	xref(UUID),
 	server_tokens(TB, Tokens).
 enriched_tokens(TB, Data, Tokens) :-		% query window
@@ -700,11 +558,7 @@ json_source_id(String, SourceID) :-
 string_source_id(String, SourceID) :-
 	atom_string(SourceID, String),
 	(   fetch_editor(SourceID, _TB)
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	->  true
-=======
 	->  release_editor(SourceID)
->>>>>>> upstream/master:lib/swish/highlight.pl
 	;   true
 	).
 
@@ -728,37 +582,17 @@ string_source_id(String, SourceID) :-
 
 shadow_editor(Data, TB) :-
 	atom_string(UUID, Data.get(uuid)),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	fetch_editor(UUID, TB), !,
-	(   Text = Data.get(text)
-	->  size_memory_file(TB, Size),
-	    delete_memory_file(TB, 0, Size),
-	    insert_memory_file(TB, 0, Text),
-	    mark_changed(TB, true)
-	;   Changes = Data.get(changes)
-	->  (   maplist(apply_change(TB, Changed), Changes)
-	    ->	true
-	    ;	throw(cm(out_of_sync))
-	    ),
-	    mark_changed(TB, Changed)
-	).
-=======
 	setup_call_catcher_cleanup(
 	    fetch_editor(UUID, TB),
 	    once(update_editor(Data, UUID, TB)),
 	    Catcher,
 	    cleanup_update(Catcher, UUID)), !.
->>>>>>> upstream/master:lib/swish/highlight.pl
 shadow_editor(Data, TB) :-
 	Text = Data.get(text), !,
 	atom_string(UUID, Data.uuid),
 	create_editor(UUID, TB, Data),
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	debug(cm(change), 'Initialising editor to ~q', [Text]),
-=======
 	debug(cm(change), 'Create editor for ~p', [UUID]),
 	debug(cm(change_text), 'Initialising editor to ~q', [Text]),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	insert_memory_file(TB, 0, Text).
 shadow_editor(Data, TB) :-
 	_{role:_} :< Data, !,
@@ -804,20 +638,12 @@ cleanup_update(_, UUID) :-
 	server_tokens/1.
 
 show_mirror(Role) :-
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(_UUID, TB, Role, _), !,
-=======
 	current_editor(_UUID, TB, Role, _Lock, _), !,
->>>>>>> upstream/master:lib/swish/highlight.pl
 	memory_file_to_string(TB, String),
 	write(user_error, String).
 
 server_tokens(Role) :-
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(_UUID, TB, Role, _), !,
-=======
 	current_editor(_UUID, TB, Role, _Lock, _), !,
->>>>>>> upstream/master:lib/swish/highlight.pl
 	enriched_tokens(TB, _{}, Tokens),
 	print_term(Tokens, [output(user_error)]).
 
@@ -827,11 +653,7 @@ server_tokens(Role) :-
 %		represents the tokens found in a single toplevel term.
 
 server_tokens(TB, GroupedTokens) :-
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-	current_editor(UUID, TB, _Role, _),
-=======
 	current_editor(UUID, TB, _Role, _Lock, _),
->>>>>>> upstream/master:lib/swish/highlight.pl
 	setup_call_cleanup(
 	    open_memory_file(TB, read, Stream),
 	    ( set_stream_file(TB, Stream),
@@ -1003,10 +825,7 @@ style(delimiter,	 delimiter,			   [text]).
 style(identifier,	 identifier,			   [text]).
 style(module(_Module),   module,			   [text]).
 style(error,		 error,				   [text]).
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-=======
 style(constraint(Set),   constraint,			   [text, set(Set)]).
->>>>>>> upstream/master:lib/swish/highlight.pl
 style(type_error(Expect), error,		      [text,expected(Expect)]).
 style(syntax_error(_Msg,_Pos), syntax_error,		   []).
 style(instantiation_error, instantiation_error,	           [text]).
@@ -1033,16 +852,11 @@ style(dcg(plain),	 brace_term_open-brace_term_close, []).
 style(brace_term,	 brace_term_open-brace_term_close, []).
 style(dict_content,	 dict_open-dict_close,             []).
 style(expanded,		 expanded,			   [text]).
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-style(comment_string,	 comment_string,		   []).
-style(ext_quant,	 ext_quant,			   []).
-=======
 style(comment_string,	 comment_string,		   []). % up to 7.3.33
 style(comment(string),	 comment_string,		   []). % after 7.3.33
 style(ext_quant,	 ext_quant,			   []).
 style(unused_import,	 unused_import,			   [text]).
 style(undefined_import,	 undefined_import,		   [text]).
->>>>>>> upstream/master:lib/swish/highlight.pl
 					% from library(http/html_write)
 style(html(_Element),	 html,				   []).
 style(entity(_Element),	 entity,			   []).
@@ -1070,10 +884,7 @@ neck_text(directive,    (:-)).
 head_type(exported,	 head_exported).
 head_type(public(_),	 head_public).
 head_type(extern(_),	 head_extern).
-<<<<<<< HEAD:lib/trill_on_swish/highlight.pl
-=======
 head_type(extern(_,_),	 head_extern).
->>>>>>> upstream/master:lib/swish/highlight.pl
 head_type(dynamic,	 head_dynamic).
 head_type(multifile,	 head_multifile).
 head_type(unreferenced,	 head_unreferenced).

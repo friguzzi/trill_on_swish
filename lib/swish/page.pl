@@ -3,30 +3,6 @@
     Author:        Jan Wielemaker
     E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-    Copyright (C): 2014-2015, VU University Amsterdam
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-    As a special exception, if you link this library with other files,
-    compiled with a Free Software compiler, to produce an executable, this
-    library does not by itself cause the resulting executable to be covered
-    by the GNU General Public License. This exception does not however
-    invalidate any other reasons why the executable file might be covered by
-    the GNU General Public License.
-=======
     Copyright (c)  2014-2018, VU University Amsterdam
 			      CWI, Amsterdam
     All rights reserved.
@@ -55,7 +31,9 @@
     LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
->>>>>>> upstream/master:lib/swish/page.pl
+
+    Changes by:    Riccardo Zese
+    E-mail:        riccardo.zese@unife.it
 */
 
 :- module(swish_page,
@@ -112,18 +90,11 @@ http:location(pldoc, swish(pldoc), [priority(100)]).
 :- http_handler(swish(.), swish_reply([]), [id(swish), prefix]).
 
 :- multifile
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	swish_config:source_alias/2,
-	swish_config:reply_page/1,
-	swish_config:verify_write_access/3, % +Request, +File, +Options
-	swish_config:authenticate/2.	    % +Request, -User
-=======
 	swish_config:logo//1,
 	swish_config:title//1,
 	swish_config:source_alias/2,
 	swish_config:reply_page/1,
 	swish_config:li_login_button//1.
->>>>>>> upstream/master:lib/swish/page.pl
 
 %%	swish_reply(+Options, +Request)
 %
@@ -140,14 +111,6 @@ http:location(pldoc, swish(pldoc), [priority(100)]).
 %	  of a line.
 %	  - q(Query)
 %	  Use Query as the initial query.
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-
-swish_reply(Options, Request) :-
-	swish_config:authenticate(Request, User), !, % must throw to deny access
-	swish_reply2([user(User)|Options], Request).
-swish_reply(Options, Request) :-
-	swish_reply2(Options, Request).
-=======
 %	  - show_beware(Boolean)
 %	  Control showing the _beware limited edition_ warning.
 %	  - preserve_state(Boolean)
@@ -160,31 +123,12 @@ swish_reply(Options, Request) :-
 	    Options2 = [identity(Auth)|Options]
 	),
 	swish_reply2(Options2, Request).
->>>>>>> upstream/master:lib/swish/page.pl
 
 swish_reply2(Options, Request) :-
 	option(method(Method), Request),
 	Method \== get, Method \== head, !,
 	swish_rest_reply(Method, Request, Options).
 swish_reply2(_, Request) :-
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	serve_resource(Request), !.
-swish_reply2(Options, Request) :-
-	swish_reply_config(Request, Options), !.
-swish_reply2(SwishOptions, Request) :-
-	Params = [ code(_,	 [optional(true)]),
-		   background(_, [optional(true)]),
-		   examples(_,   [optional(true)]),
-		   q(_,          [optional(true)]),
-		   format(_,     [oneof([swish,raw,json]), default(swish)])
-		 ],
-	http_parameters(Request, Params),
-	params_options(Params, Options0),
-	merge_options(Options0, SwishOptions, Options1),
-	source_option(Request, Options1, Options2),
-	option(format(Format), Options2),
-	swish_reply3(Format, Options2).
-=======
 	swish_reply_resource(Request), !.
 swish_reply2(Options, Request) :-
 	swish_reply_config(Request, Options), !.
@@ -204,7 +148,6 @@ swish_reply2(SwishOptions, Request) :-
 	source_option(Request, Options3, Options4),
 	option(format(Format), Options4),
 	swish_reply3(Format, Options4).
->>>>>>> upstream/master:lib/swish/page.pl
 
 swish_reply3(raw, Options) :-
 	option(code(Code), Options), !,
@@ -213,29 +156,14 @@ swish_reply3(raw, Options) :-
 swish_reply3(json, Options) :-
 	option(code(Code), Options), !,
 	option(meta(Meta), Options, _{}),
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	reply_json_dict(json{data:Code, meta:Meta}).
-=======
 	option(chat_count(Count), Options, 0),
 	reply_json_dict(json{data:Code, meta:Meta, chats:_{total:Count}}).
->>>>>>> upstream/master:lib/swish/page.pl
 swish_reply3(_, Options) :-
 	swish_config:reply_page(Options), !.
 swish_reply3(_, Options) :-
 	reply_html_page(
 	    swish(main),
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	    [ title('TRILL on SWISH -- Probabilistic Reasoner for Description Logics in Prolog'),
-	      link([ rel('shortcut icon'),
-		     href('/icons/rb_favicon.ico')
-		   ]),
-	      link([ rel('apple-touch-icon'),
-		     href('/icons/trill-touch-icon.png')
-		   ])
-	    ],
-=======
 	    \swish_title(Options),
->>>>>>> upstream/master:lib/swish/page.pl
 	    \swish_page(Options)).
 
 params_options([], []).
@@ -350,49 +278,6 @@ source_data(Path, Code, [title(Title), type(Ext), meta(Meta)]) :-
 	source_metadata(Path, Code, Meta),
 	file_base_name(Path, File),
 	file_name_extension(Title, Ext, File).
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-
-%%	source_metadata(+Path, +Code, -Meta:dict) is det.
-%
-%	Obtain meta information about a local  source file. Defined meta
-%	info is:
-%
-%	  - last_modified:Time
-%	  Last modified stamp of the file.  Always present.
-%	  - loaded:true
-%	  Present of the file is a loaded source file
-%	  - modified_since_loaded:true
-%	  Present if the file loaded, has been edited, but not
-%	  yet reloaded.
-
-source_metadata(Path, Code, Meta) :-
-	findall(Name-Value, source_metadata(Path, Code, Name, Value), Pairs),
-	dict_pairs(Meta, meta, Pairs).
-
-source_metadata(Path, _Code, path, Path).
-source_metadata(Path, _Code, last_modified, Modified) :-
-	time_file(Path, Modified).
-source_metadata(Path, _Code, loaded, true) :-
-	source_file(Path).
-source_metadata(Path, _Code, modified_since_loaded, true) :-
-	source_file_property(Path, modified(ModifiedWhenLoaded)),
-	time_file(Path, Modified),
-	ModifiedWhenLoaded \== Modified.
-source_metadata(Path, _Code, module, Module) :-
-	file_name_extension(_, Ext, Path),
-	user:prolog_file_type(Ext, prolog),
-	xref_public_list(Path, _, [module(Module)]).
-
-confirm_access(Path, Options) :-
-	option(if(Condition), Options), !,
-	must_be(oneof([loaded]), Condition),
-	eval_condition(Condition, Path).
-confirm_access(_, _).
-
-eval_condition(loaded, Path) :-
-	source_file(Path).
-=======
->>>>>>> upstream/master:lib/swish/page.pl
 
 %%	source_metadata(+Path, +Code, -Meta:dict) is det.
 %
@@ -471,11 +356,13 @@ swish_navbar(Options) -->
 	span([style('color:darkblue')],['SWI']),
 	span([style('color:maroon')],['SH']),
 	' is a web application for a Javascript-enabled browser',
-	' which embeds the tableau reasoner TRILL.',
+	' which embeds the tableau reasoners TRILL, TRILL',
+	span([style('vertical-align:super;font-size:smaller')],['P']),
+	' and TORNADO.',
 	&(nbsp), &(nbsp),
 	a([href('/help/about.html'),target('_blank')],['About']),
 	&(nbsp), &(nbsp),
-	a([href('/help/help.html'),target('_blank')],['Help']),
+	a([href('/help/help-trill.html'),target('_blank')],['Help']),
 	&(nbsp), &(nbsp),
 	a([id('dismisslink'),href('')],['Dismiss'])
 	])
@@ -534,12 +421,12 @@ updates(_Options) -->
 swish_title(Options) -->
 	swish_config:title(Options), !.
 swish_title(_Options) -->
-	html([ title('SWISH -- SWI-Prolog for SHaring'),
+	html([ title('TRILL on SWISH -- Probabilistic Reasoner for Description Logics in Prolog'),
 	       link([ rel('shortcut icon'),
-		      href('/icons/favicon.ico')
+		      href('/icons/rb_favicon.ico')
 		    ]),
 	       link([ rel('apple-touch-icon'),
-		      href('/icons/swish-touch-icon.png')
+		      href('/icons/trill-touch-icon.png')
 		    ])
 	     ]).
 
@@ -597,12 +484,8 @@ swish_content(Options) -->
 	},
 	swish_resources,
 	swish_config_hash(Options),
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	html(div([id(content), class([container, swish])],
-=======
 	swish_options(Options),
 	html(div([id(content), class([container, 'tile-top'])],
->>>>>>> upstream/master:lib/swish/page.pl
 		 [ div([class([tile, horizontal]), 'data-split'('50%')],
 		       [ div([ class([editors, tabbed])
 			     ],
@@ -633,8 +516,6 @@ swish_config_hash(Options) -->
 		   |}).
 
 
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-=======
 %!	swish_options(+Options)//
 %
 %	Emit additional options. This is  similar   to  config,  but the
@@ -664,7 +545,6 @@ swish_option(Name, Options) -->
 swish_option(_, _) -->
 	[].
 
->>>>>>> upstream/master:lib/swish/page.pl
 %%	source(+Type, +Options)//
 %
 %	Associate the source with the SWISH   page. The source itself is
@@ -703,12 +583,8 @@ source_data_attrs(Options) -->
 	(source_url_data(Options) -> [] ; []),
 	(source_title_data(Options) -> [] ; []),
 	(source_meta_data(Options) -> [] ; []),
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	(source_st_type_data(Options) -> [] ; []).
-=======
 	(source_st_type_data(Options) -> [] ; []),
 	(source_chat_data(Options) -> [] ; []).
->>>>>>> upstream/master:lib/swish/page.pl
 
 source_file_data(Options) -->
 	{ option(file(File), Options) },
@@ -727,14 +603,11 @@ source_meta_data(Options) -->
 	  atom_json_dict(Text, Meta, [])
 	},
 	['data-meta'(Text)].
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-=======
 source_chat_data(Options) -->
 	{ option(chat_count(Count), Options),
 	  atom_json_term(JSON, _{count:Count}, [as(string)])
 	},
 	['data-chats'(JSON)].
->>>>>>> upstream/master:lib/swish/page.pl
 
 %%	background(+Options)//
 %
@@ -776,25 +649,6 @@ query(_) --> [].
 %
 %	We have opened a notebook. Embed the notebook data in the
 %	left-pane tab area.
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-
-notebooks(swinb, Options) -->
-	{ option(code(Spec), Options),
-	  download_source(Spec, NoteBookText, Options),
-	  phrase(source_data_attrs(Options), Extra)
-	},
-	html(div([ class('notebook fullscreen'),
-		   'data-label'('Notebook')		% Use file?
-		 ],
-		 [ pre([ class('notebook-data'),
-			 style('display:none')
-		       | Extra
-		       ],
-		       NoteBookText)
-		 ])).
-notebooks(_, _) --> [].
-
-=======
 
 notebooks(swinb, Options) -->
 	{ option(code(Spec), Options),
@@ -812,7 +666,6 @@ notebooks(swinb, Options) -->
 		 ])).
 notebooks(_, _) --> [].
 
->>>>>>> upstream/master:lib/swish/page.pl
 %%	download_source(+HREF, -Source, +Options) is det.
 %
 %	Download source from a URL.  Options processed:
@@ -870,11 +723,7 @@ load_error(E, Source) :-
 %
 %	Determine the type of document.
 %
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-%	@arg Type is one of `notebook` or `prolog`
-=======
 %	@arg Type is one of `swinb` or `pl`
->>>>>>> upstream/master:lib/swish/page.pl
 
 document_type(Type, Options) :-
 	(   option(type(Type0), Options)
@@ -883,10 +732,6 @@ document_type(Type, Options) :-
 	    file_name_extension(_, Type0, Meta.name),
 	    Type0 \== ''
 	->  Type = Type0
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	;   Type = pl
-	).
-=======
 	;   option(st_type(external), Options),
 	    option(url(URL), Options),
 	    file_name_extension(_, Ext, URL),
@@ -896,7 +741,6 @@ document_type(Type, Options) :-
 	).
 
 ext_type(swinb, swinb).
->>>>>>> upstream/master:lib/swish/page.pl
 
 
 		 /*******************************
@@ -917,7 +761,15 @@ swish_js  --> html_post(head, \include_swish_js).
 swish_css --> html_post(head, \include_swish_css).
 
 include_swish_js -->
-	{ swish_resource(js, JS),
+	html(script([],[
+      '(function(i,s,o,g,r,a,m){i[''GoogleAnalyticsObject'']=r;i[r]=i[r]||function(){
+       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,''script'',''//www.google-analytics.com/analytics.js'',''ga'');
+
+        ga(''create'', ''UA-16202613-11'', ''auto'');
+        ga(''send'', ''pageview'');'])),
+        { swish_resource(js, JS),
 	  swish_resource(rjs, RJS),
 	  http_absolute_location(swish(js/JS), SwishJS, []),
 	  http_absolute_location(swish(RJS),   SwishRJS, [])
@@ -974,13 +826,8 @@ swish_rest_reply(put, Request, Options) :-
 	source_file(Request, File, Options1), !,
 	option(content_type(String), Request),
 	http_parse_header_value(content_type, String, Type),
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-	read_data(Type, Request, Data, _Meta),
-	verify_write_access(Request, File, Options1),
-=======
 	read_data(Type, Request, Data, Meta),
 	authorized(file(update(File,Meta)), Options1),
->>>>>>> upstream/master:lib/swish/page.pl
 	setup_call_cleanup(
 	    open(File, write, Out),
 	    format(Out, '~s', [Data]),
@@ -993,23 +840,3 @@ read_data(media(Type,_), Request, Data, Meta) :-
 	del_dict(data, Dict, Data, Meta).
 read_data(media(text/_,_), Request, Data, _{}) :-
 	http_read_data(Request, Data, [to(string)]).
-<<<<<<< HEAD:lib/trill_on_swish/page.pl
-
-%%	swish_config:verify_write_access(+Request, +File, +Options) is
-%%	nondet.
-%
-%	Hook that verifies that the HTTP Request  may write to File. The
-%	hook must succeed to grant access. Failure   is  is mapped to an
-%	HTTP _403 Forbidden_ reply. The  hook   may  throw  another HTTP
-%	reply.  By default, the following options are passed:
-%
-%	  - alias(+Alias)
-%	    The swish_config:source_alias/2 Alias used to find File.
-
-verify_write_access(Request, File, Options) :-
-	swish_config:verify_write_access(Request, File, Options), !.
-verify_write_access(Request, _File, _Options) :-
-	option(path(Path), Request),
-	throw(http_reply(forbidden(Path))).
-=======
->>>>>>> upstream/master:lib/swish/page.pl

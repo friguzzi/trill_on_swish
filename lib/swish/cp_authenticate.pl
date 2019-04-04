@@ -52,15 +52,6 @@ the server will challenge the user.  The   logged  in  user is available
 through pengine_user/1.
 */
 
-<<<<<<< HEAD:lib/trill_on_swish/cp_authenticate.pl
-%pengines:authentication_hook(_Request, _Application, User) :-
-%	logged_on(User).
-pengines:authentication_hook(_Request, _Application, anonymous).
-
-%pengines:not_sandboxed(User, _Application) :-
-%	catch(check_permission(User, admin(swish)), _, fail).
-pengines:not_sandboxed(_User, _Application).
-=======
 :- multifile
     swish_config:reply_logged_in/1,
     swish_config:reply_logged_out/1,
@@ -117,4 +108,3 @@ cp_logged_in(User) :-
 
 cp_logged_out(_User) :-
     swish_config:reply_logged_out([reply(none)]).
->>>>>>> upstream/master:lib/swish/cp_authenticate.pl

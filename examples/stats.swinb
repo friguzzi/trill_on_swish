@@ -1,10 +1,6 @@
 <div class="notebook">
 
-<<<<<<< HEAD
-<div class="nb-cell markdown">
-=======
 <div class="nb-cell markdown" name="md1">
->>>>>>> upstream/master
 # Display SWISH server statistics
 
 This page examines the performance and health of the SWISH server.  Most of the statistics are gathered by `lib/swish_debug`, which is by default loaded into http://swish.swi-prolog.org but must be explicitly loaded into your own SWISH server.  Part of the statistics are based on reading the Linux =|/proc|= file system and thus only function on Linux.
@@ -12,30 +8,18 @@ This page examines the performance and health of the SWISH server.  Most of the 
 The first step is easy, showing the overall statistics of the server.
 </div>
 
-<<<<<<< HEAD
-<div class="nb-cell query">
-statistics.
-</div>
-
-<div class="nb-cell markdown">
-=======
 <div class="nb-cell query" name="q3">
 statistics.
 </div>
 
 <div class="nb-cell markdown" name="md2">
->>>>>>> upstream/master
 ## Historical performance statistics
 
 The charts below render historical performance characteristics of the server.  Please open the
 program below for a description of chart/3.
 </div>
 
-<<<<<<< HEAD
-<div class="nb-cell program" data-singleline="true">
-=======
 <div class="nb-cell program" data-singleline="true" name="p1">
->>>>>>> upstream/master
 :- use_rendering(c3).
 
 %%	chart(+Period, +Keys, -Chart) is det.
@@ -60,12 +44,8 @@ program below for a description of chart/3.
 %	    high if user applications use the dynamic database.
 %	  - `rss_mb`, `stack_mb`, `heap_mb` are the above divided by 1024^2.
 
-<<<<<<< HEAD
-chart(Period, Keys, Chart) :-
-=======
 chart(PeriodS, Keys, Chart) :-
     atom_string(Period, PeriodS),
->>>>>>> upstream/master
     swish_stats(Period, Dicts0),
     maplist(add_heap_mb, Dicts0, Dicts1),
     maplist(rss_mb, Dicts1, Dicts2),
@@ -120,36 +100,6 @@ fix_date(Stat0, Stat) :-
     put_dict(time, Stat0, Time, Stat).
 </div>
 
-<<<<<<< HEAD
-<div class="nb-cell markdown">
-### Number of Pengines and CPU load over the past hour
-
-The number of Pegines denotes the number of actively executing queries.  These queries may be sleeping while waiting for input, a debugger command or the user asking for more answers. Note that the number of Pengines is sampled and short-lived Pengines does not appear in this chart.
-</div>
-
-<div class="nb-cell query">
-chart(hour, [pengines,d_cpu], Chart).
-</div>
-
-<div class="nb-cell markdown">
-### Memory usage over the past hour
-
-*rss* is the total (_resident_) memory usage as reported by Linux.  *stack* is the memory occupied by all Prolog stacks.
-*heap* is an approximation of the memory used for the Prolog program space, computed as _rss_ - _stack_ - _free_.  This is incorrect for two reasons.  It ignores the C-stacks and the not-yet-committed memory of the Prolog stacks is not part of *rss*.  *free* is memory that is freed but not yet reused as reported by GNU =|malinfo()|= as `fordblks`.
-</div>
-
-<div class="nb-cell query">
-chart(hour, [rss_mb,heap_mb,stack_mb,free_mb], Chart).
-</div>
-
-<div class="nb-cell markdown">
-## Health statistics
-
-The statistics below assesses the number of *Pengines* (actively executing queries from users) and the *highlight states*, the number of server-side mirrors we have from client's source code used to compute the semantically enriched tokens.   If such states are not explicitly invalidated by the client, they are removed after having not been accessed for one hour.  The *stale modules* count refers to temporary modules that are not associated to a Pengine, nor to a highlight state and probably indicate a leak.
-</div>
-
-<div class="nb-cell program" data-singleline="true">
-=======
 <div class="nb-cell html" name="htm1">
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -262,7 +212,6 @@ The two queries below extract information about stale modules and threads that h
 </div>
 
 <div class="nb-cell program" data-singleline="true" name="p2">
->>>>>>> upstream/master
 :- use_rendering(table).
 
 stats([stale_modules-Stale|Pairs]) :-
@@ -272,12 +221,6 @@ stats([stale_modules-Stale|Pairs]) :-
             Pairs).
 </div>
 
-<<<<<<< HEAD
-<div class="nb-cell query">
-stats(Stats).
-</div>
-
-=======
 <div class="nb-cell query" name="q7">
 stats(Stats).
 </div>
@@ -290,5 +233,4 @@ pengine_stale_module(Module, State).
 swish_died_thread(Thread, State).
 </div>
 
->>>>>>> upstream/master
 </div>

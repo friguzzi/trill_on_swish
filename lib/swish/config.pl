@@ -54,12 +54,6 @@
         login/2,                        % +Server, +Request
         user_info/3.                    % +Request, -Server, -Info
 
-:- multifile
-	config/2,			% ?Key, ?Value
-	config/3,			% ?Key, ?Value, +Options
-	source_alias/2,			% ?Alias, ?Options
-	authenticate/2.			% +Request, -User
-
 /** <module> Make HTTP locations known to JSON code
 */
 
@@ -88,19 +82,12 @@ swish_config_hash(Hash, Options) :-
 
 json_config(json{ http: json{ locations:JSON
 			    },
-<<<<<<< HEAD:lib/trill_on_swish/config.pl
-		  swish: SWISHConfig
-		}, Options) :-
-	http_locations(JSON),
-	swish_config_dict(SWISHConfig, Options).
-=======
 		  swish: SWISHConfig,
 		  plugins : Plugins
 		}, Options) :-
 	http_locations(JSON),
 	swish_config_dict(SWISHConfig, Options),
 	web_plugins(Plugins, Options).
->>>>>>> upstream/master:lib/swish/config.pl
 
 http_locations(JSON) :-
 	findall(ID-Path,
@@ -135,9 +122,6 @@ same_ids(T, _, T, []).
 
 swish_config_dict(Config, Options) :-
 	findall(Key-Value, swish_config(Key, Value, Options), Pairs),
-<<<<<<< HEAD:lib/trill_on_swish/config.pl
-	dict_pairs(Config, json, Pairs).
-=======
 	keysort(Pairs, Sorted),
 	warn_duplicate_config(Sorted, Unique),
 	dict_pairs(Config, json, Unique).
@@ -187,7 +171,6 @@ expand_paths(Name-Spec, Name-Path) :-
 	http_absolute_location(Spec, Path, []).
 expand_paths(Pair, Pair).
 
->>>>>>> upstream/master:lib/swish/config.pl
 
 %%	config(-Key, -Value) is nondet.
 %%	swish_config(-Key, -Value) is nondet.
@@ -203,8 +186,6 @@ swish_config(Key, Value, Options) :-
 swish_config(Key, Value, _) :-
 	config(Key, Value).
 
-<<<<<<< HEAD:lib/trill_on_swish/config.pl
-=======
 % We need to use '$swish wrapper' with a variable _residuals in
 % versions that support the `var_prefix` option.
 :- if(current_prolog_flag(var_prefix, _)).
@@ -286,7 +267,6 @@ config(residuals_var, '_residuals').
 		 *          OTHER HOOKS		*
 		 *******************************/
 
->>>>>>> upstream/master:lib/swish/config.pl
 %%	source_alias(?Alias, ?Options) is nondet.
 %
 %	Multifile hook that  defines   properties  of file_search_path/2
@@ -298,10 +278,7 @@ config(residuals_var, '_residuals').
 %	  The _New Tab_ search form searches in files that satisfy the
 %	  given pattern in the matching directories.  Pattern is handed
 %	  to expand_file_name/2.
-<<<<<<< HEAD:lib/trill_on_swish/config.pl
-=======
 
->>>>>>> upstream/master:lib/swish/config.pl
 
 		 /*******************************
 		 *	      MESSAGES		*

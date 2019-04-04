@@ -53,7 +53,7 @@ FONTS=$(addprefix $(FONTDIR)/, $(FONTFILES))
 CLIENTFILES=swish-ask.sh README.md sin-table.html
 CLIENTS=$(addprefix client/, $(CLIENTFILES))
 EXAMPLESFILES=trill/biopaxLevel3.pl trill/BRCA.pl trill/DBPedia.pl trill/examples_trill.swinb \
-              trill/peoplePets.pl trill/vicodi.pl trill/commander.pl trill/johnEmployee.pl \
+              trill/peoplePets.pl trill/vicodi.pl trill/commander.pl trill/johnEmployee.pl trill/index.json \
               render_c3.swinb render_graphviz.swinb htmlcell.swinb \
 	      rendering.swinb jquery.swinb stats.swinb \
 	      swish_tutorials.swinb \

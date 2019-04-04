@@ -44,7 +44,7 @@ ICON_FILES=owl_25_years.png running.gif page-fold-20.png \
 	   red_bird.svg red_bird_op.svg owl.png \
 	   rb_favicon.ico trill-touch-icon.png
 ICONS=$(addprefix web/icons/, $(ICON_FILES))
-HELP=$(addprefix web/help/, $(notdir $(wildcard src/web/help/*.html)))
+HELP=$(addprefix web/help/, $(notdir $(wildcard src/web/help/*.html)) index.json)
 FONTFILES=glyphicons-halflings-regular.ttf \
 	  glyphicons-halflings-regular.eot \
 	  glyphicons-halflings-regular.woff \

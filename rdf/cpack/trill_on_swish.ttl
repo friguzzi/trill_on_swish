@@ -5,7 +5,7 @@
 @prefix cpack:   <http://cliopatria.swi-prolog.org/schema/cpack#> .
 
 # This file is a Turtle-format RDF file that describes the package.  It
-# *must* be located in rdf/cpack/swish.ttl
+# *must* be located in rdf/cpack/trill_on_swish.ttl
 #
 # Author is a FOAF Person. If you have a FOAF profile, you can link to
 # this.  Otherwise you can specify the information inline as done below.

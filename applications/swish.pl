@@ -47,6 +47,8 @@
 
 http:location(swish, root(swish), []).
 
+user:file_search_path(swish,     trill_on_swish(.)).
+
 user:file_search_path(render,     library(swish/render)).
 user:file_search_path(swish_pack, library(swish/pack)).
 
@@ -242,6 +244,8 @@ pengines:prepare_module(Module, swish, _Options) :-
 :- if(exists_source(library(semweb/rdf11))).
 :- use_module(library(semweb/rdf11), []).
 :- endif.
+
+:- use_module(library(trill)).
 
 % rendering libraries
 

@@ -1,5 +1,9 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
+<<<<<<< HEAD
 // Distributed under an MIT license: http://codemirror.net/LICENSE
+=======
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> upstream/master
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -14,7 +18,11 @@
   var defaultTags = {
     script: [
       ["lang", /(javascript|babel)/i, "javascript"],
+<<<<<<< HEAD
       ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^$/i, "javascript"],
+=======
+      ["type", /^(?:text|application)\/(?:x-)?(?:java|ecma)script$|^module$|^$/i, "javascript"],
+>>>>>>> upstream/master
       ["type", /./, "text/plain"],
       [null, null, "javascript"]
     ],
@@ -46,7 +54,11 @@
 
   function getAttrValue(text, attr) {
     var match = text.match(getAttrRegexp(attr))
+<<<<<<< HEAD
     return match ? match[2] : ""
+=======
+    return match ? /^\s*(.*?)\s*$/.exec(match[2])[1] : ""
+>>>>>>> upstream/master
   }
 
   function getTagRegexp(tagName, anchored) {
@@ -105,7 +117,11 @@
           return maybeBackup(stream, endTag, state.localMode.token(stream, state.localState));
         };
         state.localMode = mode;
+<<<<<<< HEAD
         state.localState = CodeMirror.startState(mode, htmlMode.indent(state.htmlState, ""));
+=======
+        state.localState = CodeMirror.startState(mode, htmlMode.indent(state.htmlState, "", ""));
+>>>>>>> upstream/master
       } else if (state.inTag) {
         state.inTag += stream.current()
         if (stream.eol()) state.inTag += " "
@@ -133,11 +149,19 @@
         return state.token(stream, state);
       },
 
+<<<<<<< HEAD
       indent: function (state, textAfter) {
         if (!state.localMode || /^\s*<\//.test(textAfter))
           return htmlMode.indent(state.htmlState, textAfter);
         else if (state.localMode.indent)
           return state.localMode.indent(state.localState, textAfter);
+=======
+      indent: function (state, textAfter, line) {
+        if (!state.localMode || /^\s*<\//.test(textAfter))
+          return htmlMode.indent(state.htmlState, textAfter, line);
+        else if (state.localMode.indent)
+          return state.localMode.indent(state.localState, textAfter, line);
+>>>>>>> upstream/master
         else
           return CodeMirror.Pass;
       },

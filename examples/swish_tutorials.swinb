@@ -1,12 +1,29 @@
 <div class="notebook">
 
+<<<<<<< HEAD
 <div class="nb-cell markdown">
+=======
+<div class="nb-cell markdown" name="md1">
+>>>>>>> upstream/master
 # SWISH Tutorials
 
 This notebook provides an overview of tutorials about using SWISH.
 
+<<<<<<< HEAD
   - [Rendering answers graphically](example/rendering.swinb)
   - [Using HTML cells in notebooks](example/htmlcell.swinb)
+=======
+  - [Writing __HTML__](example/html_output.swinb)
+  - [Rendering answers *graphically*](example/rendering.swinb) (graphs, charts, mathjax, etc.)
+  - [Using __R__ in SWISH](example/Rserve.swinb) (statistics, charts, machine learning)
+  - [Accessing external *data*](example/data_source.swinb) (CSV, SPARQL, etc.)
+  - Advanced topics for *notebooks*
+    - Using HTML cells in notebooks
+      - [The basics](example/htmlcell.swinb)
+      - [Including user widgets (slider)](example/slider.swinb)
+      - [Hiding all SWISH elements](example/chat80.swinb)
+    - [Embedding Prolog in markdown cells](example/md_eval.swinb)
+>>>>>>> upstream/master
   - [Access the SWISH interface from Prolog](example/jquery.swinb)
 </div>
 

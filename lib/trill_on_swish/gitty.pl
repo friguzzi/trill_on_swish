@@ -1,37 +1,49 @@
-/*  Part of SWI-Prolog
+/*  Part of SWISH
 
     Author:        Jan Wielemaker
-    E-mail:        J.Wielemaker@cs.vu.nl
+    E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 2015, VU University Amsterdam
+    Copyright (c)  2014-2018, VU University Amsterdam
+    All rights reserved.
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
 
-    You should have received a copy of the GNU General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in
+       the documentation and/or other materials provided with the
+       distribution.
 
-    As a special exception, if you link this library with other files,
-    compiled with a Free Software compiler, to produce an executable, this
-    library does not by itself cause the resulting executable to be covered
-    by the GNU General Public License. This exception does not however
-    invalidate any other reasons why the executable file might be covered by
-    the GNU General Public License.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+    COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
 */
 
 :- module(gitty,
 	  [ gitty_open/2,		% +Store, +Options
 	    gitty_close/1,		% +Store
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
 
 	    gitty_file/3,		% +Store, ?Name, ?Hash
+=======
+	    gitty_driver/2,		% +Store, -Driver
+
+	    gitty_file/3,		% +Store, ?Name, ?Hash
+	    gitty_file/4,		% +Store, ?Name, ?Ext, ?Hash
+>>>>>>> upstream/master:lib/swish/gitty.pl
 	    gitty_create/5,		% +Store, +Name, +Data, +Meta, -Commit
 	    gitty_update/5,		% +Store, +Name, +Data, +Meta, -Commit
 	    gitty_commit/3,		% +Store, +Name, -Meta
@@ -39,7 +51,15 @@
 	    gitty_history/4,		% +Store, +Name, -History, +Options
 	    gitty_hash/2,		% +Store, ?Hash
 
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
+=======
+	    gitty_fsck/1,		% +Store
+	    gitty_save/4,		% +Store, +Data, +Type, -Hash
+	    gitty_load/4,		% +Store, +Hash, -Data, -Type
+
+>>>>>>> upstream/master:lib/swish/gitty.pl
 	    gitty_reserved_meta/1,	% ?Key
+	    is_gitty_hash/1,		% @Term
 
 	    gitty_diff/4,		% +Store, ?Start, +End, -Diff
 
@@ -86,6 +106,7 @@ the newly created (gitty_create/5) or updated object (gitty_update/5).
 
 :- dynamic
 	gitty_store_type/2.		% +Store, -Module
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
 
 %%	gitty_open(+Store, +Options) is det.
 %
@@ -141,15 +162,88 @@ store_driver_module(Store, Module) :-
 gitty_close(Store) :-
 	store_driver_module(Store, M),
 	M:gitty_close(Store).
+=======
+>>>>>>> upstream/master:lib/swish/gitty.pl
 
-%%	gitty_file(+Store, ?File, ?Head) is nondet.
+%%	gitty_open(+Store, +Options) is det.
 %
-%	True when File entry in the  gitty   store  and Head is the HEAD
-%	revision.
+%	Open a gitty store according to Options.  Defined
+%	options are:
+%
+%	  - driver(+Driver)
+%	  Backend driver to use.  One of =files= or =bdb=.  When
+%	  omitted and the store exists, the current store is
+%	  examined.  If the store does not exist, the default
+%	  is =files=.
+
+gitty_open(Store, Options) :-
+	(   exists_directory(Store)
+	->  true
+	;   existence_error(directory, Store)
+	),
+	(   option(driver(Driver), Options)
+	->  true
+	;   default_driver(Store, Driver)
+	),
+	set_driver(Store, Driver).
+
+default_driver(Store, Driver) :-
+	directory_file_path(Store, ref, RefDir),
+	exists_directory(RefDir), !,
+	Driver = files.
+default_driver(Store, Driver) :-
+	directory_file_path(Store, heads, RefDir),
+	exists_file(RefDir), !,
+	Driver = bdb.
+default_driver(_, files).
+
+set_driver(Store, Driver) :-
+	must_be(atom, Store),
+	(   driver_module(Driver, Module)
+	->  retractall(gitty_store_type(Store, _)),
+	    asserta(gitty_store_type(Store, Module))
+	;   domain_error(gitty_driver, Driver)
+	).
+
+driver_module(files, gitty_driver_files).
+driver_module(bdb,   gitty_driver_bdb).
+
+store_driver_module(Store, Module) :-
+	atom(Store), !,
+	gitty_store_type(Store, Module).
+
+%!	gitty_driver(+Store, -Driver)
+%
+%	Get the current gitty driver
+
+gitty_driver(Store, Driver) :-
+	store_driver_module(Store, Module),
+	driver_module(Driver, Module), !.
+
+%%	gitty_close(+Store) is det.
+%
+%	Close access to the Store.
+
+gitty_close(Store) :-
+	store_driver_module(Store, M),
+	M:gitty_close(Store).
+
+%%	gitty_file(+Store, ?Head, ?Hash) is nondet.
+%%	gitty_file(+Store, ?Head, ?Ext, ?Hash) is nondet.
+%
+%	True when Hash is an entry in the gitty Store and Head is the
+%	HEAD revision.
 
 gitty_file(Store, Head, Hash) :-
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
 	store_driver_module(Store, M),
 	M:gitty_file(Store, Head, Hash).
+=======
+	gitty_file(Store, Head, _Ext, Hash).
+gitty_file(Store, Head, Ext, Hash) :-
+	store_driver_module(Store, M),
+	M:gitty_file(Store, Head, Ext, Hash).
+>>>>>>> upstream/master:lib/swish/gitty.pl
 
 %%	gitty_create(+Store, +Name, +Data, +Meta, -Commit) is det.
 %
@@ -185,7 +279,8 @@ gitty_update(Store, Name, Data, Meta, CommitRet) :-
 	->  true
 	;   throw(error(gitty(commit_version(Name, OldHead, Meta.previous)), _))
 	),
-	load_plain_commit(Store, OldHead, OldMeta),
+	load_plain_commit(Store, OldHead, OldMeta0),
+	filter_identity(OldMeta0, OldMeta),
 	get_time(Now),
 	save_object(Store, Data, blob, Hash),
 	Commit = gitty{}.put(OldMeta)
@@ -203,6 +298,29 @@ gitty_update(Store, Name, Data, Meta, CommitRet) :-
 	      ( delete_object(Store, CommitHash),
 		throw(E))).
 
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
+=======
+%!	filter_identity(+Meta0, -Meta)
+%
+%	Remove identification information  from   the  previous  commit.
+%
+%	@tbd: the identity properties should not be hardcoded here.
+
+filter_identity(Meta0, Meta) :-
+	delete_keys([ author,user,avatar,identity,peer,
+		      external_identity, identity_provider, profile_id,
+		      commit_message
+		    ], Meta0, Meta).
+
+delete_keys([], Dict, Dict).
+delete_keys([H|T], Dict0, Dict) :-
+	del_dict(H, Dict0, _, Dict1), !,
+	delete_keys(T, Dict1, Dict).
+delete_keys([_|T], Dict0, Dict) :-
+	delete_keys(T, Dict0, Dict).
+
+
+>>>>>>> upstream/master:lib/swish/gitty.pl
 %%	gitty_update_head(+Store, +Name, +OldCommit, +NewCommit) is det.
 %
 %	Update the head of a gitty  store   for  Name.  OldCommit is the
@@ -254,8 +372,10 @@ load_plain_commit(Store, Hash, Meta) :-
 
 %%	gitty_history(+Store, +NameOrHash, -History, +Options) is det.
 %
-%	History is a list of dicts representating the history of Name in
-%	Store.  Options:
+%	History is a dict holding a key   `history` with a list of dicts
+%	representating the history of Name in   Store. The toplevel dict
+%	also contains `skipped`, indicating the  number of skipped items
+%	from the HEAD. Options:
 %
 %	  - depth(+Depth)
 %	  Number of entries in the history.  If not present, defaults
@@ -265,17 +385,23 @@ load_plain_commit(Store, Hash, Meta) :-
 %	  history includes the entry with HASH an (depth+1)//2 entries
 %	  after the requested HASH.
 
-gitty_history(Store, Name, History, Options) :-
+gitty_history(Store, Name, json{history:History,skipped:Skipped}, Options) :-
 	history_hash_start(Store, Name, Hash0),
 	option(depth(Depth), Options, 5),
 	(   option(includes(Hash), Options)
-	->  read_history_to_hash(Store, Hash0, Hash, History0),
-	    length(History0, Before),
+	->  read_history_to_hash(Store, Hash0, Hash, History00),
+	    length(History00, Before),
 	    After is max(Depth-Before, (Depth+1)//2),
 	    read_history_depth(Store, Hash, After, History1),
-	    append(History0, History1, History2),
-	    list_prefix(Depth, History2, History)
-	;   read_history_depth(Store, Hash0, Depth, History)
+	    length(History1, AfterLen),
+	    BeforeLen is Depth - AfterLen,
+	    list_prefix(BeforeLen, History00, History0),
+	    length(History00, Len00),
+	    length(History0, Len0),
+	    Skipped is Len00-Len0,
+	    append(History0, History1, History)
+	;   read_history_depth(Store, Hash0, Depth, History),
+	    Skipped is 0
 	).
 
 history_hash_start(Store, Name, Hash) :-
@@ -346,19 +472,54 @@ size_in_bytes(Data, Size) :-
 	    close(Out)).
 
 
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
+=======
+%!	gitty_fsck(+Store) is det.
+%
+%	Check the integrity of store.
+
+gitty_fsck(Store) :-
+	forall(gitty_hash(Store, Hash),
+	       fsck_object_msg(Store, Hash)),
+	store_driver_module(Store, M),
+	M:gitty_fsck(Store).
+
+fsck_object_msg(Store, Hash) :-
+	fsck_object(Store, Hash), !.
+fsck_object_msg(Store, Hash) :-
+	print_message(error, gitty(Store, fsck(bad_object(Hash)))).
+
+>>>>>>> upstream/master:lib/swish/gitty.pl
 %%	fsck_object(+Store, +Hash) is semidet.
 %
 %	Test the integrity of object Hash in Store.
 
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
 :- public fsck_object/2.
 fsck_object(Store, Hash) :-
 	load_object(Store, Hash, Data, Type, Size),
+=======
+:- public
+	fsck_object/2,
+	check_object/4.
+
+fsck_object(Store, Hash) :-
+	load_object(Store, Hash, Data, Type, Size),
+	check_object(Hash, Data, Type, Size).
+
+check_object(Hash, Data, Type, Size) :-
+>>>>>>> upstream/master:lib/swish/gitty.pl
 	format(string(Hdr), '~w ~d\u0000', [Type, Size]),
 	sha_new_ctx(Ctx0, []),
 	sha_hash_ctx(Ctx0, Hdr, Ctx1, _),
 	sha_hash_ctx(Ctx1, Data, _, HashBin),
 	hash_atom(HashBin, Hash).
 
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
+=======
+
+
+>>>>>>> upstream/master:lib/swish/gitty.pl
 
 %%	load_object(+Store, +Hash, -Data) is det.
 %%	load_object(+Store, +Hash, -Data, -Type, -Size) is det.
@@ -370,6 +531,23 @@ load_object(Store, Hash, Data) :-
 load_object(Store, Hash, Data, Type, Size) :-
 	store_driver_module(Store, Module),
 	Module:load_object(Store, Hash, Data, Type, Size).
+<<<<<<< HEAD:lib/trill_on_swish/gitty.pl
+=======
+
+%!	gitty_save(+Store, +Data, +Type, -Hash) is det.
+%!	gitty_load(+Store, +Hash, -Data, -Type) is det.
+%
+%	Low level objects store. These predicate   allows  for using the
+%	store as an arbitrary content store.
+%
+%	@arg Data is a string
+%	@arg Type is an atom denoting the object type.
+
+gitty_save(Store, Data, Type, Hash) :-
+	save_object(Store, Data, Type, Hash).
+gitty_load(Store, Hash, Data, Type) :-
+	load_object(Store, Hash, Data, Type, _Size).
+>>>>>>> upstream/master:lib/swish/gitty.pl
 
 %%	gitty_hash(+Store, ?Hash) is nondet.
 %
@@ -424,11 +602,53 @@ set_head(Store, File, Head) :-
 	Module:set_head(Store, File, Head).
 
 
+%%	is_gitty_hash(@Term) is semidet.
+%
+%	True if Term is a possible gitty (SHA1) hash
+
+is_gitty_hash(SHA1) :-
+	atom(SHA1),
+	atom_length(SHA1, 40),
+	atom_codes(SHA1, Codes),
+	maplist(hex_digit, Codes).
+
+hex_digit(C) :- between(0'0, 0'9, C), !.
+hex_digit(C) :- between(0'a, 0'f, C).
+
+
+		 /*******************************
+		 *	    FSCK SUPPORT	*
+		 *******************************/
+
+:- public
+	delete_object/2,
+	delete_head/2,
+	set_head/3.
+
+%%	delete_head(+Store, +Head) is det.
+%
+%	Delete Head from the administration.  Used if the head is
+%	inconsistent.
+
+delete_head(Store, Head) :-
+	store_driver_module(Store, Module),
+	Module:delete_head(Store, Head).
+
+%%	set_head(+Store, +File, +Head) is det.
+%
+%	Register Head as the Head hash for File, removing possible
+%	old head.
+
+set_head(Store, File, Head) :-
+	store_driver_module(Store, Module),
+	Module:set_head(Store, File, Head).
+
+
 		 /*******************************
 		 *	       DIFF		*
 		 *******************************/
 
-%%	gitty_diff(+Store, ?Hash1, +FileOrHash2, -Dict) is det.
+%%	gitty_diff(+Store, ?Hash1, +FileOrHash2OrData, -Dict) is det.
 %
 %	True if Dict representeds the changes   in Hash1 to FileOrHash2.
 %	If Hash1 is unbound,  it  is   unified  with  the  `previous` of
@@ -443,7 +663,19 @@ set_head(Store, File, Head) :-
 %	  data.  Only present of data has changed
 %	  - tags:_{added:AddedTags, deleted:DeletedTags}
 %	  If tags have changed, the added and deleted ones.
+%
+%	@arg	FileOrHash2OrData is a file name, hash or a term
+%		data(String) to compare a given string with a
+%		gitty version.
 
+gitty_diff(Store, C1, data(Data2), Dict) :- !,
+	must_be(atom, C1),
+	gitty_data(Store, C1, Data1, _Meta1),
+	(   Data1 \== Data2
+	->  udiff_string(Data1, Data2, UDIFF),
+	    Dict = json{data:UDIFF}
+	;   Dict = json{}
+	).
 gitty_diff(Store, C1, C2, Dict) :-
 	gitty_data(Store, C2, Data2, Meta2),
 	(   var(C1)
@@ -484,19 +716,33 @@ meta_tag_set(_, []).
 
 :- if(true).
 
+% Note that cleanup on possible errors is   rather hard. The created tmp
+% stream must be closed and the file must  be deleted. We also close the
+% file before running diff (necessary  on   Windows  to  avoid a sharing
+% violation). Therefore reclaim_tmp_file/2 first uses   close/2 to close
+% if not already done and then deletes the file.
+
 udiff_string(Data1, Data2, UDIFF) :-
 	setup_call_cleanup(
-	    save_string(Data1, File1),
-	    setup_call_cleanup(
-		save_string(Data2, File2),
-		process_diff(File1, File2, UDIFF),
-		delete_file(File2)),
-	    delete_file(File1)).
+	    tmp_file_stream(utf8, File1, Tmp1),
+	    ( save_string(Data1, Tmp1),
+	      setup_call_cleanup(
+		  tmp_file_stream(utf8, File2, Tmp2),
+		  ( save_string(Data2, Tmp2),
+		    process_diff(File1, File2, UDIFF)
+		  ),
+		  reclaim_tmp_file(File2, Tmp2))
+	    ),
+	    reclaim_tmp_file(File1, Tmp1)).
 
-save_string(String, File) :-
-	tmp_file_stream(utf8, File, TmpOut),
-	format(TmpOut, '~s', [String]),
-	close(TmpOut).
+save_string(String, Stream) :-
+	call_cleanup(
+	    format(Stream, '~s', [String]),
+	    close(Stream)).
+
+reclaim_tmp_file(File, Stream) :-
+	close(Stream, [force(true)]),
+	delete_file(File).
 
 process_diff(File1, File2, String) :-
 	setup_call_cleanup(

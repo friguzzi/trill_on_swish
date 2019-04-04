@@ -1,38 +1,46 @@
-/*  Part of SWI-Prolog
+/*  Part of SWISH
 
     Author:        Jan Wielemaker
-    E-mail:        J.Wielemaker@cs.vu.nl
+    E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 2015, VU University Amsterdam
+    Copyright (c)  2015-2018, VU University Amsterdam
+			      CWI, Amsterdam
+    All rights reserved.
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
 
-    You should have received a copy of the GNU General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in
+       the documentation and/or other materials provided with the
+       distribution.
 
-    As a special exception, if you link this library with other files,
-    compiled with a Free Software compiler, to produce an executable, this
-    library does not by itself cause the resulting executable to be covered
-    by the GNU General Public License. This exception does not however
-    invalidate any other reasons why the executable file might be covered by
-    the GNU General Public License.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+    COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
 */
 
 :- module(swish_debug,
-	  [ pengine_stale_module/1,	% -Module, -State
+	  [ pengine_stale_module/1,	% -Module
 	    pengine_stale_module/2,	% -Module, -State
+	    stale_pengine/1,		% -Pengine
 	    swish_statistics/1,		% -Statistics
 	    start_swish_stat_collector/0,
-	    swish_stats/2		% ?Period, ?Dicts
+	    swish_stats/2,		% ?Period, ?Dicts
+	    swish_died_thread/2	% ?Thread, ?State
 	  ]).
 :- use_module(library(pengines)).
 :- use_module(library(broadcast)).
@@ -44,8 +52,19 @@
 :- use_module(highlight).
 :- if(exists_source(library(mallocinfo))).
 :- use_module(library(mallocinfo)).
+:- export(malloc_info/1).
 :- endif.
 
+%!	stale_pengine(-Pengine) is nondet.
+%
+%	True if Pengine is a Pengine who's thread died.
+
+stale_pengine(Pengine) :-
+	pengine_property(Pengine, thread(Thread)),
+	\+ catch(thread_property(Thread, status(running)), _, fail).
+
+
+%%	pengine_stale_module(-M) is nondet.
 %%	pengine_stale_module(-M, -State) is nondet.
 %
 %	True if M seems to  be  a   pengine  module  with  no associated
@@ -89,9 +108,21 @@ stale_module_property(M, thread_status, Status) :-
 	pengine_property(Pengine, module(M)),
 	pengine_property(Pengine, thread(Thread)),
 	catch(thread_property(Thread, status(Status)), _, fail).
+stale_module_property(M, module_class, Class) :-
+	module_property(M, class(Class)).
 stale_module_property(M, program_space, Space) :-
 	module_property(M, program_space(Space)).
+stale_module_property(M, program_size, Size) :-
+	module_property(M, program_size(Size)).
+stale_module_property(M, predicates, List) :-
+	current_module(M),
+	findall(PI, pi_in_module(M, PI), List).
+stale_module_property(UUID, highlight_state, State) :-
+	current_highlight_state(UUID, State).
 
+pi_in_module(M, Name/Arity) :-
+	'$c_current_predicate'(_, M:Head),
+	functor(Head, Name, Arity).
 
 %%	swish_statistics(?State)
 %
@@ -204,8 +235,16 @@ stats_ring(year,   5).
 
 swish_stats(Name, Ring, Stats) :-
 	thread_self(Me),
-	thread_send_message(Name, Me-get_stats(Ring)),
+	catch(thread_send_message(Name, Me-get_stats(Ring)), E,
+	      stats_died(Name, E)),
 	thread_get_message(get_stats(Ring, Stats)).
+
+stats_died(Alias, E) :-
+	print_message(error, E),
+	thread_join(Alias, Status),
+	print_message(error, swish_stats(died, Status)),
+	start_swish_stat_collector,
+	fail.
 
 stat_collect(Dims, Interval) :-
 	new_sliding_stats(Dims, SlidingStat),
@@ -257,6 +296,7 @@ get_stats(Wrap, Stats) :-
 			rss:RSS,
 			stack:Stack,
 			pengines:Pengines,
+			threads:Threads,
 			pengines_created:PenginesCreated,
 			time:Time
 		      },
@@ -266,12 +306,14 @@ get_stats(Wrap, Stats) :-
 	statistics(cputime, MyCPU),
 	CPU is PCPU-MyCPU,
 	statistics(stack, Stack),
+	statistics(threads, Threads),
 	catch(procps_stat(Stat), _,
 	      Stat = stat{rss:0}),
 	RSS = Stat.rss,
 	swish_statistics(pengines(Pengines)),
 	swish_statistics(pengines_created(PenginesCreated)),
-	add_fordblks(Wrap, Stats0, Stats).
+	add_fordblks(Wrap, Stats0, Stats1),
+	add_visitors(Stats1, Stats).
 
 :- if(current_predicate(mallinfo/1)).
 add_fordblks(Wrap, Stats0, Stats) :-
@@ -285,6 +327,11 @@ add_fordblks(Wrap, Stats0, Stats) :-
 	Stats = Stats0.put(fordblks, FordBlks).
 :- endif.
 add_fordblks(_, Stats, Stats).
+
+add_visitors(Stats0, Stats) :-
+	broadcast_request(swish(visitor_count(C))), !,
+	Stats = Stats0.put(visitors, C).
+add_visitors(Stats, Stats).
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -360,6 +407,24 @@ avg_key(Dicts, Len, Key, Key-Avg) :-
 	Avg is Sum/Len.
 
 
+%!	swish_died_thread(TID, Status) is nondet.
+%
+%	True if Id is a thread that died   with Status and has not (yet)
+%	been joined. Note that such threads may exist for a short while.
+
+swish_died_thread(TID, Status) :-
+	findall(TID-Stat, (thread_property(Thread, status(Stat)),
+			   Stat \== running,
+			   thread_property(Thread, id(TID))), Pairs),
+	member(TID-Stat, Pairs),
+	status_message(Stat, Status).
+
+status_message(exception(Ex), Message) :- !,
+	message_to_string(Ex, Message0),
+	string_concat('ERROR: ', Message0, Message).
+status_message(Status, Status).
+
+
 		 /*******************************
 		 *	     SANDBOX		*
 		 *******************************/
@@ -369,5 +434,10 @@ avg_key(Dicts, Len, Key, Key-Avg) :-
 
 sandbox:safe_primitive(swish_debug:pengine_stale_module(_)).
 sandbox:safe_primitive(swish_debug:pengine_stale_module(_,_)).
+sandbox:safe_primitive(swish_debug:stale_pengine(_)).
 sandbox:safe_primitive(swish_debug:swish_statistics(_)).
 sandbox:safe_primitive(swish_debug:swish_stats(_, _)).
+sandbox:safe_primitive(swish_debug:swish_died_thread(_, _)).
+:- if(current_predicate(malloc_info:malloc_info/1)).
+sandbox:safe_primitive(malloc_info:malloc_info(_)).
+:- endif.

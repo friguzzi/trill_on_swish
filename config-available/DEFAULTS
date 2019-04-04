@@ -1,1 +1,4 @@
-config(trill_on_swish, link).
+config(swish, link).
+config(email, copy).
+config(user_profile, link).
+

@@ -1,30 +1,35 @@
-/*  Part of SWI-Prolog
+/*  Part of SWISH
 
     Author:        Jan Wielemaker
-    E-mail:        J.Wielemaker@cs.vu.nl
+    E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 2015, VU University Amsterdam
+    Copyright (c)  2016, VU University Amsterdam
+    All rights reserved.
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation; either version 2
-    of the License, or (at your option) any later version.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
 
-    You should have received a copy of the GNU General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in
+       the documentation and/or other materials provided with the
+       distribution.
 
-    As a special exception, if you link this library with other files,
-    compiled with a Free Software compiler, to produce an executable, this
-    library does not by itself cause the resulting executable to be covered
-    by the GNU General Public License. This exception does not however
-    invalidate any other reasons why the executable file might be covered by
-    the GNU General Public License.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+    COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
 */
 
 :- module(swish_csv, []).
@@ -47,7 +52,6 @@ SWISH program and obtain the results using   a simple web client such as
 
 :- multifile
 	pengines:write_result/3,
-	pengines:write_result/4,
 	write_answers/2,		% Answers, Bindings
 	write_answers/3.		% Answers, Bindings, Options
 
@@ -56,35 +60,35 @@ SWISH program and obtain the results using   a simple web client such as
 %	Hook into library(pengines) that  makes   pengines  support  CSV
 %	output.
 
-pengines:write_result(csv, Event, VarNames) :-
-	csv(Event, VarNames, []).
-pengines:write_result(csv, Event, VarNames, OptionDict) :-
+pengines:write_result(csv, Event, OptionDict) :-
 	(   Disposition = OptionDict.get(disposition)
 	->  Options = [disposition(Disposition)]
 	;   Options = []
 	),
-	csv(Event, VarNames, Options).
+	csv(Event, Options).
 
-csv(create(_Id, Features), VarNames, Options) :- !,
+csv(create(_Id, Features), Options) :- !,
 	memberchk(answer(Answer), Features),
-	csv(Answer, VarNames, Options).
-csv(destroy(_Id, Wrapped), VarNames, Options) :- !,
-	csv(Wrapped, VarNames, Options).
-csv(success(_Id, Answers, _Time, More), VarNames, Options) :- !,
-	VarTerm =.. [row|VarNames],
+	csv(Answer, Options).
+csv(destroy(_Id, Wrapped), Options) :- !,
+	csv(Wrapped, Options).
+csv(success(_Id, Answers, Projection, _Time, More), Options) :- !,
+	VarTerm =.. [row|Projection],
 	success(Answers, VarTerm, [more(More)|Options]).
-csv(error(_Id, Error), _VarNames, _Options) :- !,
+csv(error(_Id, Error), _Options) :- !,
 	message_to_string(Error, Msg),
 	format('Status: 400 Bad request~n'),
 	format('Content-type: text/plain~n~n'),
 	format('ERROR: ~w~n', [Msg]).
-csv(output(_Id, message(_Term, _Class, HTML, _Where)), _VarNames, _Opts) :- !,
+csv(output(_Id, message(_Term, _Class, HTML, _Where)), _Opts) :- !,
 	format('Status: 400 Bad request~n'),
 	format('Content-type: text/html~n~n'),
 	format('<html>~n~s~n</html>~n', [HTML]).
-csv(page(Page, Event), VarNames, Options) :-
-	csv(Event, VarNames, [page(Page)|Options]).
-csv(Event, _VarNames, _) :-
+csv(page(Page, Event), Options) :-
+	csv(Event, [page(Page)|Options]).
+csv(failure(_Id, _Time), Options) :- !,
+	success([], -, [more(false)|Options]).
+csv(Event, _) :-
 	print_term(Event, [output(user_error)]).
 
 success(Answers, VarTerm, Options) :-
@@ -104,9 +108,14 @@ success(Answers, VarTerm, Options) :-
 	format('Content-encoding: chunked~n'),
 	format('Content-disposition: attachment; filename="~w"~n', [Disposition]),
 	format('Content-type: text/csv~n~n'),
-	csv_write_stream(current_output, [VarTerm], []),
+	projection_row(VarTerm),
 	forall(paginate(100, Page, Rows),
 	       csv_write_stream(current_output, Page, [])).
+
+projection_row(-) :- !.
+projection_row(row) :- !.
+projection_row(VarTerm) :-
+	csv_write_stream(current_output, [VarTerm], []).
 
 paginate(Len, Page, List) :-
 	length(Page0, Len),

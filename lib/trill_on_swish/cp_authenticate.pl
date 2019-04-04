@@ -3,7 +3,8 @@
     Author:        Jan Wielemaker
     E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 2014, VU University Amsterdam
+    Copyright (C): 2014-2017, VU University Amsterdam
+			      CWI, Amsterdam
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -27,11 +28,11 @@
     the GNU General Public License.
 */
 
-:- module(swish_authenticate,
+:- module(cp_swish_authenticate,
 	  [
 	  ]).
 :- use_module(library(pengines), []).
-:- use_module(library(lists)).
+:- use_module(library(broadcast)).
 :- use_module(user(user_db)).
 
 /** <module> SWISH login management
@@ -51,6 +52,7 @@ the server will challenge the user.  The   logged  in  user is available
 through pengine_user/1.
 */
 
+<<<<<<< HEAD:lib/trill_on_swish/cp_authenticate.pl
 %pengines:authentication_hook(_Request, _Application, User) :-
 %	logged_on(User).
 pengines:authentication_hook(_Request, _Application, anonymous).
@@ -58,3 +60,61 @@ pengines:authentication_hook(_Request, _Application, anonymous).
 %pengines:not_sandboxed(User, _Application) :-
 %	catch(check_permission(User, admin(swish)), _, fail).
 pengines:not_sandboxed(_User, _Application).
+=======
+:- multifile
+    swish_config:reply_logged_in/1,
+    swish_config:reply_logged_out/1,
+    swish_config:authenticate/2,
+    swish_config:user_info/3.
+
+swish_config:authenticate(_Request, User) :-
+    logged_on(User).
+
+swish_config:user_info(_Request, local, Info) :-
+    logged_on(User),
+    cp_user_info(User, Info).
+
+cp_user_info(User, Info) :-
+    findall(Name-Value, cp_user_property(User, Name, Value), Pairs),
+    dict_pairs(Info, u, Pairs).
+
+cp_user_property(User, user, User).
+cp_user_property(User, name, RealName) :-
+    user_property(User, realname(RealName)).
+cp_user_property(User, email, Email) :-
+    user_property(User, email(Email)).
+cp_user_property(User, group, Group) :-
+    user_property(User, allow(Allow)),
+    (   memberchk(admin(_), Allow)
+    ->  Group = admin
+    ;   memberchk(write(_,_), Allow)
+    ->  Group = writer
+    ;   Group = reader
+    ).
+
+:- listen(identity_property(Identity, Property),
+          cp_identity_property(Identity, Property)).
+
+cp_identity_property(Identity, Property) :-
+    _{user:User, identity_provider:local} :< Identity,
+    Property =.. [Name,Value],
+    cp_user_property(User, Name, Value).
+
+
+		 /*******************************
+		 * LINK LOGIN/LOGOUT TO PROFILE *
+		 *******************************/
+
+:- listen(cliopatria(login(User, _Session)),
+          cp_logged_in(User)).
+:- listen(cliopatria(logout(User)),
+          cp_logged_out(User)).
+
+cp_logged_in(User) :-
+    cp_user_info(User, Info),
+    IdInfo = Info.put(_{identity_provider:local, external_identity:User}),
+    swish_config:reply_logged_in([user_info(IdInfo), reply(none)]).
+
+cp_logged_out(_User) :-
+    swish_config:reply_logged_out([reply(none)]).
+>>>>>>> upstream/master:lib/swish/cp_authenticate.pl

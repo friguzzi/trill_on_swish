@@ -1,8 +1,9 @@
-/*  Part of SWI-Prolog
+/*  Part of SWISH
 
     Author:        Jan Wielemaker
-    E-mail:        J.Wielemaker@cs.vu.nl
+    E-mail:        J.Wielemaker@vu.nl
     WWW:           http://www.swi-prolog.org
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
     Copyright (C): 2014-2015, VU University Amsterdam
 
     This program is free software; you can redistribute it and/or
@@ -25,14 +26,48 @@
     by the GNU General Public License. This exception does not however
     invalidate any other reasons why the executable file might be covered by
     the GNU General Public License.
+=======
+    Copyright (c)  2014-2018, VU University Amsterdam
+			      CWI, Amsterdam
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in
+       the documentation and/or other materials provided with the
+       distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+    COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+>>>>>>> upstream/master:lib/swish/page.pl
 */
 
 :- module(swish_page,
 	  [ swish_reply/2,			% +Options, +Request
+	    swish_reply_resource/1,		% +Request
 	    swish_page//1,			% +Options
 
 	    swish_navbar//1,			% +Options
 	    swish_content//1,			% +Options
+
+	    pengine_logo//1,			% +Options
+	    swish_logo//1,			% +Options
 
 	    swish_resources//0,
 	    swish_js//0,
@@ -61,6 +96,9 @@
 :- use_module(config).
 :- use_module(help).
 :- use_module(search).
+:- use_module(chat).
+:- use_module(authenticate).
+:- use_module(pep).
 
 /** <module> Provide the SWISH application as Prolog HTML component
 
@@ -74,10 +112,18 @@ http:location(pldoc, swish(pldoc), [priority(100)]).
 :- http_handler(swish(.), swish_reply([]), [id(swish), prefix]).
 
 :- multifile
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	swish_config:source_alias/2,
 	swish_config:reply_page/1,
 	swish_config:verify_write_access/3, % +Request, +File, +Options
 	swish_config:authenticate/2.	    % +Request, -User
+=======
+	swish_config:logo//1,
+	swish_config:title//1,
+	swish_config:source_alias/2,
+	swish_config:reply_page/1,
+	swish_config:li_login_button//1.
+>>>>>>> upstream/master:lib/swish/page.pl
 
 %%	swish_reply(+Options, +Request)
 %
@@ -94,18 +140,34 @@ http:location(pldoc, swish(pldoc), [priority(100)]).
 %	  of a line.
 %	  - q(Query)
 %	  Use Query as the initial query.
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 
 swish_reply(Options, Request) :-
 	swish_config:authenticate(Request, User), !, % must throw to deny access
 	swish_reply2([user(User)|Options], Request).
 swish_reply(Options, Request) :-
 	swish_reply2(Options, Request).
+=======
+%	  - show_beware(Boolean)
+%	  Control showing the _beware limited edition_ warning.
+%	  - preserve_state(Boolean)
+%	  If `true`, save state on unload and restore old state on load.
+
+swish_reply(Options, Request) :-
+	(   option(identity(_), Options)
+	->  Options2 = Options
+	;   authenticate(Request, Auth),
+	    Options2 = [identity(Auth)|Options]
+	),
+	swish_reply2(Options2, Request).
+>>>>>>> upstream/master:lib/swish/page.pl
 
 swish_reply2(Options, Request) :-
 	option(method(Method), Request),
 	Method \== get, Method \== head, !,
 	swish_rest_reply(Method, Request, Options).
 swish_reply2(_, Request) :-
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	serve_resource(Request), !.
 swish_reply2(Options, Request) :-
 	swish_reply_config(Request, Options), !.
@@ -122,6 +184,27 @@ swish_reply2(SwishOptions, Request) :-
 	source_option(Request, Options1, Options2),
 	option(format(Format), Options2),
 	swish_reply3(Format, Options2).
+=======
+	swish_reply_resource(Request), !.
+swish_reply2(Options, Request) :-
+	swish_reply_config(Request, Options), !.
+swish_reply2(SwishOptions, Request) :-
+	Params = [ code(_,	  [optional(true)]),
+		   show_beware(_, [optional(true)]),
+		   background(_,  [optional(true)]),
+		   examples(_,    [optional(true)]),
+		   q(_,           [optional(true)]),
+		   format(_,      [oneof([swish,raw,json]), default(swish)])
+		 ],
+	http_parameters(Request, Params),
+	params_options(Params, Options0),
+	add_show_beware(Options0, Options1),
+	add_preserve_state(Options1, Options2),
+	merge_options(Options2, SwishOptions, Options3),
+	source_option(Request, Options3, Options4),
+	option(format(Format), Options4),
+	swish_reply3(Format, Options4).
+>>>>>>> upstream/master:lib/swish/page.pl
 
 swish_reply3(raw, Options) :-
 	option(code(Code), Options), !,
@@ -130,12 +213,18 @@ swish_reply3(raw, Options) :-
 swish_reply3(json, Options) :-
 	option(code(Code), Options), !,
 	option(meta(Meta), Options, _{}),
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	reply_json_dict(json{data:Code, meta:Meta}).
+=======
+	option(chat_count(Count), Options, 0),
+	reply_json_dict(json{data:Code, meta:Meta, chats:_{total:Count}}).
+>>>>>>> upstream/master:lib/swish/page.pl
 swish_reply3(_, Options) :-
 	swish_config:reply_page(Options), !.
 swish_reply3(_, Options) :-
 	reply_html_page(
 	    swish(main),
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	    [ title('TRILL on SWISH -- Probabilistic Reasoner for Description Logics in Prolog'),
 	      link([ rel('shortcut icon'),
 		     href('/icons/rb_favicon.ico')
@@ -144,6 +233,9 @@ swish_reply3(_, Options) :-
 		     href('/icons/trill-touch-icon.png')
 		   ])
 	    ],
+=======
+	    \swish_title(Options),
+>>>>>>> upstream/master:lib/swish/page.pl
 	    \swish_page(Options)).
 
 params_options([], []).
@@ -154,6 +246,43 @@ params_options([H0|T0], [H|T]) :-
 	params_options(T0, T).
 params_options([_|T0], T) :-
 	params_options(T0, T).
+
+%!	add_show_beware(+Options0, -Option) is det.
+%
+%	Add show_beware(false) when called with code, query or examples.
+%	These are dedicated calls that do not justify this message.
+
+add_show_beware(Options0, Options) :-
+	implicit_no_show_beware(Options0), !,
+	Options = [show_beware(false)|Options0].
+add_show_beware(Options, Options).
+
+implicit_no_show_beware(Options) :-
+	option(show_beware(_), Options), !,
+	fail.
+implicit_no_show_beware(Options) :-
+	\+ option(format(swish), Options), !,
+	fail.
+implicit_no_show_beware(Options) :-
+	option(code(_), Options).
+implicit_no_show_beware(Options) :-
+	option(q(_), Options).
+implicit_no_show_beware(Options) :-
+	option(examples(_), Options).
+implicit_no_show_beware(Options) :-
+	option(background(_), Options).
+
+%!	add_preserve_state(+Options0, -Option) is det.
+%
+%	Add preserve_state(false) when called with code.
+
+add_preserve_state(Options0, Options) :-
+	option(preserve_state(_), Options0), !,
+	Options = Options0.
+add_preserve_state(Options0, Options) :-
+	option(code(_), Options0), !,
+	Options = [preserve_state(false)|Options0].
+add_preserve_state(Options, Options).
 
 
 %%	source_option(+Request, +Options0, -Options)
@@ -221,6 +350,49 @@ source_data(Path, Code, [title(Title), type(Ext), meta(Meta)]) :-
 	source_metadata(Path, Code, Meta),
 	file_base_name(Path, File),
 	file_name_extension(Title, Ext, File).
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
+
+%%	source_metadata(+Path, +Code, -Meta:dict) is det.
+%
+%	Obtain meta information about a local  source file. Defined meta
+%	info is:
+%
+%	  - last_modified:Time
+%	  Last modified stamp of the file.  Always present.
+%	  - loaded:true
+%	  Present of the file is a loaded source file
+%	  - modified_since_loaded:true
+%	  Present if the file loaded, has been edited, but not
+%	  yet reloaded.
+
+source_metadata(Path, Code, Meta) :-
+	findall(Name-Value, source_metadata(Path, Code, Name, Value), Pairs),
+	dict_pairs(Meta, meta, Pairs).
+
+source_metadata(Path, _Code, path, Path).
+source_metadata(Path, _Code, last_modified, Modified) :-
+	time_file(Path, Modified).
+source_metadata(Path, _Code, loaded, true) :-
+	source_file(Path).
+source_metadata(Path, _Code, modified_since_loaded, true) :-
+	source_file_property(Path, modified(ModifiedWhenLoaded)),
+	time_file(Path, Modified),
+	ModifiedWhenLoaded \== Modified.
+source_metadata(Path, _Code, module, Module) :-
+	file_name_extension(_, Ext, Path),
+	user:prolog_file_type(Ext, prolog),
+	xref_public_list(Path, _, [module(Module)]).
+
+confirm_access(Path, Options) :-
+	option(if(Condition), Options), !,
+	must_be(oneof([loaded]), Condition),
+	eval_condition(Condition, Path).
+confirm_access(_, _).
+
+eval_condition(loaded, Path) :-
+	source_file(Path).
+=======
+>>>>>>> upstream/master:lib/swish/page.pl
 
 %%	source_metadata(+Path, +Code, -Meta:dict) is det.
 %
@@ -262,11 +434,11 @@ confirm_access(_, _).
 eval_condition(loaded, Path) :-
 	source_file(Path).
 
-%%	serve_resource(+Request) is semidet.
+%%	swish_reply_resource(+Request) is semidet.
 %
 %	Serve /swish/Resource files.
 
-serve_resource(Request) :-
+swish_reply_resource(Request) :-
 	option(path_info(Info), Request),
 	resource_prefix(Prefix),
 	sub_atom(Info, 0, _, _, Prefix), !,
@@ -318,10 +490,21 @@ swish_navbar(Options) -->
 		   div([ class([collapse, 'navbar-collapse']),
 			 id(navbar)
 		       ],
-		       [ ul([class([nav, 'navbar-nav'])], []),
-			 \search_form(Options)
+		       [ ul([class([nav, 'navbar-nav', menubar])], []),
+			 ul([class([nav, 'navbar-nav', 'navbar-right'])],
+			    [ li(\notifications(Options)),
+			      li(\search_box(Options)),
+			      \li_login_button(Options),
+			      li(\broadcast_bell(Options)),
+			      li(\updates(Options))
+			    ])
 		       ])
 		 ])).
+
+li_login_button(Options) -->
+	swish_config:li_login_button(Options).
+li_login_button(_Options) -->
+	[].
 
 collapsed_button -->
 	html(button([type(button),
@@ -335,9 +518,55 @@ collapsed_button -->
 		      span(class('icon-bar'), [])
 		    ])).
 
+updates(_Options) -->
+	html([ a(id('swish-updates'), []) ]).
+
+
+		 /*******************************
+		 *	      BRANDING		*
+		 *******************************/
+
+%!	swish_title(+Options)// is det.
+%
+%	Emit the HTML header options dealing with the title and shortcut
+%	icons.  This can be hooked using swish_config:title//1.
+
+swish_title(Options) -->
+	swish_config:title(Options), !.
+swish_title(_Options) -->
+	html([ title('SWISH -- SWI-Prolog for SHaring'),
+	       link([ rel('shortcut icon'),
+		      href('/icons/favicon.ico')
+		    ]),
+	       link([ rel('apple-touch-icon'),
+		      href('/icons/swish-touch-icon.png')
+		    ])
+	     ]).
+
+%!	swish_logos(+Options)// is det.
+%
+%	Emit the navbar branding logos at   the  top-left. Can be hooked
+%	using swish_config:swish_logos//1.
+
+swish_logos(Options) -->
+	swish_config:logo(Options), !.
 swish_logos(Options) -->
 	pengine_logo(Options),
 	swish_logo(Options).
+
+%!	swish_config:logo(+Options)// is semidet.
+%
+%	Hook  to  include  the  top-left    logos.   The  default  calls
+%	pengine_logo//1 and swish_logo//1.  The   implementation  should
+%	emit     zero     or      more       <a>      elements.      See
+%	`config_available/branding.pl` for an example.
+
+%!	pengine_logo(+Options)// is det.
+%!	swish_logo(+Options)// is det.
+%
+%	Emit an <a> element that provides a   link to Pengines and SWISH
+%	on this server. These may be called from swish_config:logo//1 to
+%	include the default logos.
 
 pengine_logo(_Options) -->
 	{ http_absolute_location(root(.), HREF, [])
@@ -348,14 +577,10 @@ swish_logo(_Options) -->
 	},
 	html(a([href(HREF), class('swish-logo')], &(nbsp))).
 
-%%	search_form(+Options)//
-%
-%	Add search box to the navigation bar
 
-search_form(Options) -->
-	html(div(class(['col-sm-3', 'col-md-3', 'pull-right']),
-		 \search_box(Options))).
-
+		 /*******************************
+		 *	     CONTENT		*
+		 *******************************/
 
 %%	swish_content(+Options)//
 %
@@ -364,13 +589,20 @@ search_form(Options) -->
 %
 %	  - source(HREF)
 %	  Load initial source from HREF
+%	  - chat_count(Count)
+%	  Indicate the presense of Count chat messages
 
 swish_content(Options) -->
 	{ document_type(Type, Options)
 	},
 	swish_resources,
 	swish_config_hash(Options),
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	html(div([id(content), class([container, swish])],
+=======
+	swish_options(Options),
+	html(div([id(content), class([container, 'tile-top'])],
+>>>>>>> upstream/master:lib/swish/page.pl
 		 [ div([class([tile, horizontal]), 'data-split'('50%')],
 		       [ div([ class([editors, tabbed])
 			     ],
@@ -401,6 +633,38 @@ swish_config_hash(Options) -->
 		   |}).
 
 
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
+=======
+%!	swish_options(+Options)//
+%
+%	Emit additional options. This is  similar   to  config,  but the
+%	config object is big and stable   for a particular SWISH server.
+%	The options are set per session.
+
+swish_options(Options) -->
+	js_script({|javascript||
+		   window.swish = window.swish||{};
+		   window.swish.option = window.swish.option||{};
+		  |}),
+	swish_options([show_beware, preserve_state], Options).
+
+swish_options([], _) --> [].
+swish_options([H|T], Options) -->
+	swish_option(H, Options),
+	swish_options(T, Options).
+
+swish_option(Name, Options) -->
+	{ Opt =.. [Name,Val],
+	  option(Opt, Options),
+	  JSVal = @(Val)
+	}, !,
+	js_script({|javascript(Name, JSVal)||
+		   window.swish.option[Name] = JSVal;
+		   |}).
+swish_option(_, _) -->
+	[].
+
+>>>>>>> upstream/master:lib/swish/page.pl
 %%	source(+Type, +Options)//
 %
 %	Associate the source with the SWISH   page. The source itself is
@@ -439,7 +703,12 @@ source_data_attrs(Options) -->
 	(source_url_data(Options) -> [] ; []),
 	(source_title_data(Options) -> [] ; []),
 	(source_meta_data(Options) -> [] ; []),
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	(source_st_type_data(Options) -> [] ; []).
+=======
+	(source_st_type_data(Options) -> [] ; []),
+	(source_chat_data(Options) -> [] ; []).
+>>>>>>> upstream/master:lib/swish/page.pl
 
 source_file_data(Options) -->
 	{ option(file(File), Options) },
@@ -458,6 +727,14 @@ source_meta_data(Options) -->
 	  atom_json_dict(Text, Meta, [])
 	},
 	['data-meta'(Text)].
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
+=======
+source_chat_data(Options) -->
+	{ option(chat_count(Count), Options),
+	  atom_json_term(JSON, _{count:Count}, [as(string)])
+	},
+	['data-chats'(JSON)].
+>>>>>>> upstream/master:lib/swish/page.pl
 
 %%	background(+Options)//
 %
@@ -499,6 +776,7 @@ query(_) --> [].
 %
 %	We have opened a notebook. Embed the notebook data in the
 %	left-pane tab area.
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 
 notebooks(swinb, Options) -->
 	{ option(code(Spec), Options),
@@ -516,6 +794,25 @@ notebooks(swinb, Options) -->
 		 ])).
 notebooks(_, _) --> [].
 
+=======
+
+notebooks(swinb, Options) -->
+	{ option(code(Spec), Options),
+	  download_source(Spec, NoteBookText, Options),
+	  phrase(source_data_attrs(Options), Extra)
+	},
+	html(div([ class('notebook'),
+		   'data-label'('Notebook')		% Use file?
+		 ],
+		 [ pre([ class('notebook-data'),
+			 style('display:none')
+		       | Extra
+		       ],
+		       NoteBookText)
+		 ])).
+notebooks(_, _) --> [].
+
+>>>>>>> upstream/master:lib/swish/page.pl
 %%	download_source(+HREF, -Source, +Options) is det.
 %
 %	Download source from a URL.  Options processed:
@@ -573,7 +870,11 @@ load_error(E, Source) :-
 %
 %	Determine the type of document.
 %
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 %	@arg Type is one of `notebook` or `prolog`
+=======
+%	@arg Type is one of `swinb` or `pl`
+>>>>>>> upstream/master:lib/swish/page.pl
 
 document_type(Type, Options) :-
 	(   option(type(Type0), Options)
@@ -582,8 +883,20 @@ document_type(Type, Options) :-
 	    file_name_extension(_, Type0, Meta.name),
 	    Type0 \== ''
 	->  Type = Type0
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	;   Type = pl
 	).
+=======
+	;   option(st_type(external), Options),
+	    option(url(URL), Options),
+	    file_name_extension(_, Ext, URL),
+	    ext_type(Ext, Type)
+	->  true
+	;   Type = pl
+	).
+
+ext_type(swinb, swinb).
+>>>>>>> upstream/master:lib/swish/page.pl
 
 
 		 /*******************************
@@ -661,8 +974,13 @@ swish_rest_reply(put, Request, Options) :-
 	source_file(Request, File, Options1), !,
 	option(content_type(String), Request),
 	http_parse_header_value(content_type, String, Type),
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 	read_data(Type, Request, Data, _Meta),
 	verify_write_access(Request, File, Options1),
+=======
+	read_data(Type, Request, Data, Meta),
+	authorized(file(update(File,Meta)), Options1),
+>>>>>>> upstream/master:lib/swish/page.pl
 	setup_call_cleanup(
 	    open(File, write, Out),
 	    format(Out, '~s', [Data]),
@@ -675,6 +993,7 @@ read_data(media(Type,_), Request, Data, Meta) :-
 	del_dict(data, Dict, Data, Meta).
 read_data(media(text/_,_), Request, Data, _{}) :-
 	http_read_data(Request, Data, [to(string)]).
+<<<<<<< HEAD:lib/trill_on_swish/page.pl
 
 %%	swish_config:verify_write_access(+Request, +File, +Options) is
 %%	nondet.
@@ -692,3 +1011,5 @@ verify_write_access(Request, File, Options) :-
 verify_write_access(Request, _File, _Options) :-
 	option(path(Path), Request),
 	throw(http_reply(forbidden(Path))).
+=======
+>>>>>>> upstream/master:lib/swish/page.pl
